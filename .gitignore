@@ -1,0 +1,40 @@
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# testing
+/coverage
+
+# production
+/build
+
+# misc
+.DS_Store
+
+# env files (NUNCA versionar)
+.pdf
+.txt
+.env
+.env.*
+!.env.example   # <-- mantém apenas um modelo para referência
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# certs & keys
+*.key
+*.pem
+*.crt
+
+# evitar arquivos estranhos com chaves expostas
+STRIPE_SECRET*
+DATABASE_URL*
+JWT_SECRET*
+k_live*
+sk_test*
+whsec_*
+PRIVATE KEY*
+
