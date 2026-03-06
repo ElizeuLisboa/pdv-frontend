@@ -58,8 +58,7 @@ export default function PixSiteModal({ total, onClose }) {
 
     const timer = setInterval(async () => {
       try {
-        const res = await axios.get(
-          `/pagamentos/status/${txid}`,
+        const res = await api.get(`/pagamentos/status/${txid}`,
           {
             headers: {
               Authorization: token ? `Bearer ${token}` : "",

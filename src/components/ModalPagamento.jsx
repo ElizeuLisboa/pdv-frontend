@@ -197,7 +197,7 @@ export default function ModalPagamento({
 
     pixIntervalRef.current = setInterval(async () => {
       try {
-        const res = await axios.get(`/pagamentos/status/${txid}`);
+        const res = await api.get(`/pagamentos/status/${txid}`);
         const status = res.data?.status;
         console.log("STATUS PIX:", status);
         console.log("Resposta da finalização:", res.data);
