@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
-import axios from "axios";
 import { toast } from "react-toastify";
 import CupomTeste from "./CupomTeste";
-import { simularPixPago } from "../services/pagamentoService";
+// import { simularPixPago } from "../services/pagamentoService";
+// 'simularPixPago' is declared but its value is never read.
 import api from "../services/api";
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -224,7 +224,14 @@ export default function ModalPagamento({
           console.log("Payload onConfirm PIX:", statusNormalizado);
           setMostrarCupom(true);
           await onConfirm(payload);
-          console.log("Cupom deveria estar TRUE agora");
+
+          setMostrarCupom(true);
+
+          // limpar estados
+          setQrCodeBase64(null);
+          setQrString(null);
+          setPaymentId(null);
+          setAguardandoPix(false);
         }
 
         tentativas++;
@@ -277,12 +284,20 @@ export default function ModalPagamento({
   console.log("mostrarCupom:", mostrarCupom);
   console.log("pedidoFinalizado:", pedidoFinalizado);
 
-  if (mostrarCupom && pedidoFinalizado) {
-    return <CupomTeste pedido={pedidoFinalizado} onFechar={onClose} />;
+  {
+    mostrarCupom && pedidoFinalizado && (
+      <CupomTeste
+        pedido={pedidoFinalizado}
+        onFechar={() => {
+          setMostrarCupom(false);
+          onClose();
+        }}
+      />
+    );
   }
 
   const simularPixPago = async (txid) => {
-    return axios.post(`/pagamentos/simular/${txid}`);
+    return api.post(`/pagamentos/simular/${txid}`);
   };
 
   return (
@@ -463,7 +478,6 @@ export default function ModalPagamento({
         {mostrarCupom && pedidoFinalizado && (
           <CupomTeste pedido={pedidoFinalizado} />
         )}
-        
       </div>
     </div>
   );

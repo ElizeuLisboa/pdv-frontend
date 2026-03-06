@@ -79,6 +79,7 @@ export default function CaixaLojaComponent() {
     setPedidoFinalizado(response.data);
 
     setCarrinho([]);
+    setItens([]);
     setCliente(null);
     setMostrarModalPagamento(false);
   };
