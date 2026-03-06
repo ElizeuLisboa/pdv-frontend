@@ -17,8 +17,6 @@ export default function LoginPage() {
   const redirect = params.get("redirect");
   const API_URL = import.meta.env.VITE_API_URL;
 
-  // const API_URL = "http://localhost:4000/auth"; // ajuste se necessário
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -30,27 +28,21 @@ export default function LoginPage() {
 
       console.log("Resposta do login:", response.data);
 
-      const access_token = response.data.jwt;
+      const token = response.data.jwt;
       const usuario = response.data.cliente;
 
-      console.log("Token recebido:", access_token, "Usuário:", usuario);
+      if (!token) {
+        throw new Error("Token não recebido");
+      }
 
-      if (!access_token) throw new Error("Token não recebido");
+      // salva token
+      localStorage.setItem("token", token);
+      localStorage.setItem("usuario", JSON.stringify(usuario));
 
-      login(usuario, access_token);
+      // atualiza contexto
+      login(usuario, token);
 
       toast.success("Login realizado com sucesso!");
-
-      if (
-        redirect &&
-        (usuario.role === "ADMIN" || usuario.role === "SUPERUSER")
-      ) {
-        navigate(redirect);
-      } else if (usuario.role === "ADMIN" || usuario.role === "SUPERUSER") {
-        navigate("/admin");
-      } else {
-        navigate("/produtos");
-      }
 
       if (usuario.role === "CAIXA") {
         navigate("/caixa");
@@ -64,6 +56,53 @@ export default function LoginPage() {
       toast.error("Credenciais inválidas");
     }
   };
+
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+
+  //   try {
+  //     const response = await api.post("/auth/login", {
+  //       email,
+  //       password,
+  //     });
+
+  //     console.log("Resposta do login:", response.data);
+
+  //     // const access_token = response.data.jwt;
+  //     const access_token = response.data.access_token;
+  //     const usuario = response.data.cliente;
+
+  //     console.log("Token recebido:", access_token, "Usuário:", usuario);
+
+  //     if (!access_token) throw new Error("Token não recebido");
+
+  //     login(usuario, access_token);
+
+  //     toast.success("Login realizado com sucesso!");
+
+  //     if (
+  //       redirect &&
+  //       (usuario.role === "ADMIN" || usuario.role === "SUPERUSER")
+  //     ) {
+  //       navigate(redirect);
+  //     } else if (usuario.role === "ADMIN" || usuario.role === "SUPERUSER") {
+  //       navigate("/admin");
+  //     } else {
+  //       navigate("/produtos");
+  //     }
+
+  //     if (usuario.role === "CAIXA") {
+  //       navigate("/caixa");
+  //     } else if (usuario.role === "ADMIN" || usuario.role === "SUPERUSER") {
+  //       navigate("/dashboard");
+  //     } else {
+  //       navigate("/produtos", { replace: true });
+  //     }
+  //   } catch (error) {
+  //     console.error("Erro no login:", error);
+  //     toast.error("Credenciais inválidas");
+  //   }
+  // };
 
   return (
     <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded shadow">
@@ -105,19 +144,13 @@ export default function LoginPage() {
         </button>
 
         <p className="text-center mt-4 text-sm text-gray-700">
-          Não tem conta? 
-        <Link 
-            to="/cadastro" 
-            className="text-amber-600 font-semibold hover:underline"
-            >
-              Cadastre-se aqui
-            </Link>
-          {/* <Link
-            to="/clientes/novo"
+          Não tem conta?
+          <Link
+            to="/cadastro"
             className="text-amber-600 font-semibold hover:underline"
           >
             Cadastre-se aqui
-          </Link> */}
+          </Link>
         </p>
       </form>
     </div>
