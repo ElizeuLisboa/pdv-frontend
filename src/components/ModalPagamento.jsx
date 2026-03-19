@@ -129,6 +129,7 @@ export default function ModalPagamento({
 
     try {
       const token = localStorage.getItem("token");
+      console.log(JSON.parse(atob(token.split(".")[1])));
       // usuario do caixa
       const usuario = localStorage.getItem("usuario");
       const nomeCliente = usuario ? JSON.parse(usuario).nome : "Cliente PDV";
@@ -282,8 +283,8 @@ export default function ModalPagamento({
     onClose();
   };
 
-  console.log("mostrarCupom:", mostrarCupom);
-  console.log("pedidoFinalizado:", pedidoFinalizado);
+  // console.log("mostrarCupom:", mostrarCupom);
+  // console.log("pedidoFinalizado:", pedidoFinalizado);
 
   {
     mostrarCupom && pedidoFinalizado && (
