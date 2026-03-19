@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import InputMask from "react-input-mask";
-import axios from "axios";
+import api from "../services/api";
 
 export default function BuscarClienteCPF({ onClienteEncontrado, onNovoCliente }) {
   const [cpf, setCpf] = useState("");

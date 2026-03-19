@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { CartContext } from "../contexts/CartContext";
 import { formatarPreco } from "../utils/formatarPreco";
 
-const API_URL = import.meta.env.VITE_API_URL;
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
 
 export default function CardProduto({ produto }) {
   const navigate = useNavigate();

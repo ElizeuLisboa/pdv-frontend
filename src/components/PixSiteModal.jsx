@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
 import { toast } from "react-toastify";
+import api from "../services/api";
 
-const API_URL = import.meta.env.VITE_API_URL;
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
 
 export default function PixSiteModal({ total, onClose }) {
   const [qrBase64, setQrBase64] = useState(null);
@@ -21,7 +21,7 @@ export default function PixSiteModal({ total, onClose }) {
 
       const usuario = JSON.parse(localStorage.getItem("usuario") || "{}");
 
-      const res = await axios.post(
+      const res = await api.post(
         `/pagamentos/pix/gerar`,
         {
           pedidoId: Number(pedidoId),

@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import axios from "axios";
 import { toast } from "react-toastify";
 import { useFiltro } from "../contexts/FiltroContext";
+import api from "../services/api";  
+
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
 
 export default function Sucesso() {
   const [searchParams] = useSearchParams();
@@ -16,7 +18,6 @@ export default function Sucesso() {
 
   const navigate = useNavigate();
 
-  const API_URL = import.meta.env.VITE_API_URL 
   
   useEffect(() => {
     if (!pedidoId) {
@@ -27,7 +28,7 @@ export default function Sucesso() {
 
     const fetchPedido = async (tentativa = 1) => {
       try {
-        const response = await axios.get(`/pedidos/${pedidoId}`);
+        const response = await api.get(`/pedidos/${pedidoId}`);
 
         if (!response.data?.numeroPedido) {
           if (tentativa <= 5) {

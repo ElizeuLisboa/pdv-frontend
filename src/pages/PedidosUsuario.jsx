@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 import UploadComprovante from "./UploadComprovante";
 import api from "../services/api";
 
-const API_URL = import.meta.env.VITE_API_URL
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
 
 export default function PedidosUsuario() {
   const { token, usuario } = useContext(AuthContext);
@@ -16,7 +16,7 @@ export default function PedidosUsuario() {
   const atualizarPedidos = async () => {
     try {
       // `${API_URL}/pedidos/${pedidoId}`
-      const response = await axios.get(`/pedidos/usuario`,
+      const response = await api.get(`/pedidos/usuario`,
         {
           headers: { Authorization: `Bearer ${token}` },
         },

@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from "react";
-import axios from "axios";
 import ItemCarrinho from "./ItemCarrinho";
 import ModalCadastroRapido from "./ModalCadastroRapido";
 import ModalPagamento from "./ModalPagamento";
@@ -8,7 +7,7 @@ import CupomTeste from "./CupomTeste";
 import { toast } from "react-toastify";
 import { useAuth } from "../contexts/AuthContext.jsx";
 import api from "../services/api.js";
-const API_URL = import.meta.env.VITE_API_URL;
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
 
 export default function CaixaLojaComponent() {
   const [busca, setBusca] = useState("");

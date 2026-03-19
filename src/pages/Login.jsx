@@ -2,8 +2,9 @@ import React, { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useAuth } from "../contexts/AuthContext";
-import axios from "axios";
 import api from "../services/api";
+
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -15,7 +16,9 @@ export default function LoginPage() {
   const from = location.state?.from || "/";
   const params = new URLSearchParams(location.search);
   const redirect = params.get("redirect");
-  const API_URL = import.meta.env.VITE_API_URL;
+  // const API_URL = import.meta.env.VITE_API_URL; // ◄◄ antes estava declarado aqui, mas movi para o topo para manter a consistência com os outros arquivos  
+
+  console.log("API URL:", api.defaults.baseURL);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -27,6 +30,7 @@ export default function LoginPage() {
       });
 
       console.log("Resposta do login:", response.data);
+      
 
       const token = response.data.jwt;
       const usuario = response.data.cliente;
@@ -56,53 +60,6 @@ export default function LoginPage() {
       toast.error("Credenciais inválidas");
     }
   };
-
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-
-  //   try {
-  //     const response = await api.post("/auth/login", {
-  //       email,
-  //       password,
-  //     });
-
-  //     console.log("Resposta do login:", response.data);
-
-  //     // const access_token = response.data.jwt;
-  //     const access_token = response.data.access_token;
-  //     const usuario = response.data.cliente;
-
-  //     console.log("Token recebido:", access_token, "Usuário:", usuario);
-
-  //     if (!access_token) throw new Error("Token não recebido");
-
-  //     login(usuario, access_token);
-
-  //     toast.success("Login realizado com sucesso!");
-
-  //     if (
-  //       redirect &&
-  //       (usuario.role === "ADMIN" || usuario.role === "SUPERUSER")
-  //     ) {
-  //       navigate(redirect);
-  //     } else if (usuario.role === "ADMIN" || usuario.role === "SUPERUSER") {
-  //       navigate("/admin");
-  //     } else {
-  //       navigate("/produtos");
-  //     }
-
-  //     if (usuario.role === "CAIXA") {
-  //       navigate("/caixa");
-  //     } else if (usuario.role === "ADMIN" || usuario.role === "SUPERUSER") {
-  //       navigate("/dashboard");
-  //     } else {
-  //       navigate("/produtos", { replace: true });
-  //     }
-  //   } catch (error) {
-  //     console.error("Erro no login:", error);
-  //     toast.error("Credenciais inválidas");
-  //   }
-  // };
 
   return (
     <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded shadow">

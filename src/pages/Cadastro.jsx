@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import axios from "axios";
 import { toast } from "react-toastify";
+import api from "../services/api";
 
 const cepRegex = /^\d{5}-?\d{3}$/;
 
@@ -68,7 +68,7 @@ function Cadastro() {
     }
 
     try {
-      const response = await axios.post(
+      const response = await api.post(
         "/clientes",
         formData
       );

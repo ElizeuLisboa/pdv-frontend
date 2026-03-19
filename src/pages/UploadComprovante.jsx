@@ -1,5 +1,6 @@
 import React, { useState, useContext, useEffect } from "react";
-import axios from "axios";
+// import axios from "axios";
+import api from "../services/api";
 import { toast } from "react-toastify";
 import { AuthContext } from "../contexts/AuthContext";
 
@@ -29,12 +30,12 @@ export default function UploadComprovante({ pedidoId, onUploaded, jaEnviado }) {
     setLoading(true);
     try {
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("imagem", file);
       formData.append("pedidoId", pedidoId);
       formData.append("nomeRecebedor", nomeRecebedor);
       formData.append("entregadorNome", entregadorNome);
 
-      await axios.post("/comprovantes/upload", formData, {
+      await api.post("/comprovantes/upload", formData, {
         headers: { Authorization: `Bearer ${token}` },
       });
 

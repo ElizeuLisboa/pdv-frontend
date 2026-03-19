@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../services/api";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   BarChart,
@@ -24,12 +24,12 @@ export default function Dashboard() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios
+    api
       .get("/dashboard/vendas-por-produto")
       .then((res) => setVendasPorProduto(res.data))
       .catch((err) => console.error(err));
 
-    axios
+    api
       .get("/dashboard/pedidos-por-status")
       .then((res) => setPedidosPorStatus(res.data))
       .catch((err) => console.error(err));

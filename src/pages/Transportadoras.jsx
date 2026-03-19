@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import api from "../services/api";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
@@ -28,7 +28,7 @@ export default function NovaTransportadora() {
 
   const gerarCodigoInterno = async () => {
     try {
-      const res = await axios.get("/transportadoras");
+      const res = await api.get("/transportadoras");
       const lista = res.data;
 
       let maior = 0;
@@ -100,7 +100,7 @@ export default function NovaTransportadora() {
         ...form,
         frete: form.frete ? Number(form.frete) : null,
       };
-      await axios.post("/transportadoras", payload);
+      await api.post("/transportadoras", payload);
       toast.success("Transportadora cadastrada!");
       navigate("/transportadoras");
     } catch (err) {

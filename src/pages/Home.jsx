@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import api from "../services/api";
 import CardProduto from "../components/CardProduto";
 import { useFiltro } from "../contexts/FiltroContext";
-const API_URL = import.meta.env.VITE_API_URL;
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
 
 export default function Home() {
   const { categoriaSelecionada, busca } = useFiltro();

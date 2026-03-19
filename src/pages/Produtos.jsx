@@ -3,58 +3,12 @@ import { useLocation } from "react-router-dom";
 import CardProduto from "../components/CardProduto";
 import api from "../services/api";
 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
+
 export default function Produtos() {
   const location = useLocation();
   const [produtos, setProdutos] = useState([]);
   const [loading, setLoading] = useState(false);
-
-  // useEffect(() => {
-  //   const params = new URLSearchParams(location.search);
-  //   const familia = params.get("familia") || "";
-  //   const nome = params.get("nome") || "";
-
-  //   let url = "/produtos";
-  //   const query = new URLSearchParams();
-
-  //   if (!familia && !nome) {
-  //     fetch("/produtos")
-  //       .then((res) => res.json())
-  //       .then(setProdutos)
-  //       .finally(() => setLoading(false));
-  //     return;
-  //   }
-
-  //   if (familia) query.append("familia", familia);
-  //   if (nome) query.append("nome", nome);
-
-  //   if ([...query].length > 0) {
-  //     url += `?${query.toString()}`;
-  //   }
-
-  //   setLoading(true);
-
-  //   fetch(url)
-  //     .then((res) => {
-  //       if (!res.ok) throw new Error("Erro HTTP");
-  //       return res.json();
-  //     })
-  //     .then((data) => {
-  //       if (!Array.isArray(data)) {
-  //         console.warn("Dados recebidos não são array:", data);
-  //         setProdutos([]);
-  //         return;
-  //       }
-
-  //       const produtosValidos = data.filter((p) => p && p.image);
-
-  //       setProdutos(produtosValidos);
-  //     })
-  //     .catch((err) => {
-  //       console.error("Erro ao buscar produtos:", err);
-  //       setProdutos([]);
-  //     })
-  //     .finally(() => setLoading(false));
-  // }, [location.search]);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);

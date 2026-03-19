@@ -8,7 +8,7 @@ import { Bot } from "lucide-react";
 import { produtoCache, isCacheValido } from "../cache/produtoCache";
 import api from "../services/api";
 
-const API_URL = import.meta.env.VITE_API_URL;
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
 
 const DetalhesProduto = () => {
   const { id } = useParams();

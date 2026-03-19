@@ -1,8 +1,8 @@
 import React, { useState, useContext } from "react";
-import axios from "axios";
 import { toast } from "react-toastify";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../contexts/AuthContext";
+import api from "../services/api";
 
 export default function NovoProduto() {
   const [formData, setFormData] = useState({
@@ -39,7 +39,7 @@ export default function NovoProduto() {
 
       if (file) data.append("imagem", file);
 
-      const res = await axios.post("/produtos", data, {
+      const res = await api.post("/produtos", data, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",

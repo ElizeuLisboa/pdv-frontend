@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import { toast } from "react-toastify";
 import CupomTeste from "./CupomTeste";
-// import { simularPixPago } from "../services/pagamentoService";
-// 'simularPixPago' is declared but its value is never read.
 import api from "../services/api";
-const API_URL = import.meta.env.VITE_API_URL;
+
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
 
 export default function ModalPagamento({
   total,
