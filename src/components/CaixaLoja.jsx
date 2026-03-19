@@ -329,12 +329,13 @@ export default function CaixaLojaComponent() {
               >
                 <div className="flex items-center gap-3">
                   <img
-                    src={
-                      p.thumbnail ||
-                      (p.image?.startsWith?.("http")
-                        ? p.image
-                        : `${API_URL}${p.image}`)
-                    }
+                    src={p.fotoUrl || p.image || "/placeholder.png"}
+                    // src={
+                    //   p.thumbnail ||
+                    //   (p.image?.startsWith?.("http")
+                    //     ? p.image
+                    //     : `${API_URL}${p.image}`)
+                    // }
                     alt={p.title}
                     className="w-12 h-12 object-cover rounded border"
                     onError={(e) => {

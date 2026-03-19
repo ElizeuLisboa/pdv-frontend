@@ -132,6 +132,7 @@ export default function ModalPagamento({
       // usuario do caixa
       const usuario = localStorage.getItem("usuario");
       const nomeCliente = usuario ? JSON.parse(usuario).nome : "Cliente PDV";
+      const empresaId = usuario.empresaId;
 
       const itensFormatados = itens.map((i) => ({
         produtoId: i.produtoId ?? i.id,
@@ -143,7 +144,8 @@ export default function ModalPagamento({
         `/caixa/finalizar`,
         {
           metodoPagamento: "PIX",
-          clienteId,
+          clienteId: clienteId || null,
+          empresaId, // ✅ IMPORTANTE
           itens: itensFormatados,
           valorTotal: total,
         },
