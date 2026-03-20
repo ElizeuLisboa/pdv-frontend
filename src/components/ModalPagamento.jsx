@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { toast } from "react-toastify";
-import CupomTeste from "./CupomTeste";
+import CupomTeste from "./CupomPDV";
 import api from "../services/api";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
@@ -13,6 +13,7 @@ export default function ModalPagamento({
   origem = "PDV",
   onClose,
   onConfirm,
+  onFinalizar,
 }) {
   const [forma, setForma] = useState(null);
   const [parcelas, setParcelas] = useState(1);
@@ -131,9 +132,9 @@ export default function ModalPagamento({
       const token = localStorage.getItem("token");
       console.log(JSON.parse(atob(token.split(".")[1])));
       // usuario do caixa
-      const usuario = localStorage.getItem("usuario");
-      const nomeCliente = usuario ? JSON.parse(usuario).nome : "Cliente PDV";
-      const empresaId = usuario.empresaId;
+      const usuario = JSON.parse(localStorage.getItem("usuario") || "{}");
+      const nomeCliente = usuario?.nome || "Cliente PDV";
+      const empresaId = usuario?.empresaId;
 
       const itensFormatados = itens.map((i) => ({
         produtoId: i.produtoId ?? i.id,
@@ -225,7 +226,11 @@ export default function ModalPagamento({
           console.log("PIX detectado como pago, chamando onConfirm");
           console.log("Payload onConfirm PIX:", statusNormalizado);
           setMostrarCupom(true);
-          await onConfirm(payload);
+          // await onConfirm(payload);
+          console.log("PIX detectado como pago");
+
+          // ❌ NÃO chama onConfirm aqui
+          // await onConfirm(payload);
 
           setMostrarCupom(true);
 
@@ -283,9 +288,6 @@ export default function ModalPagamento({
     onClose();
   };
 
-  // console.log("mostrarCupom:", mostrarCupom);
-  // console.log("pedidoFinalizado:", pedidoFinalizado);
-
   {
     mostrarCupom && pedidoFinalizado && (
       <CupomTeste
@@ -301,6 +303,7 @@ export default function ModalPagamento({
   const simularPixPago = async (txid) => {
     return api.post(`/pagamentos/simular/${txid}`);
   };
+
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
@@ -427,21 +430,17 @@ export default function ModalPagamento({
                 )}
 
                 {/* 👉 BOTÃO PARA TESTE SEM BANCO */}
-
                 <button
                   onClick={async () => {
                     toast.success("PIX SIMULADO COMO PAGO");
 
                     await simularPixPago(pixTxid);
-                    await onConfirm({
-                      metodoPagamento: "PIX",
-                      parcelas: 1,
-                      totalComJuros: Number(totalFinal),
-                    });
 
+                    // ❌ REMOVE ISSO
+                    // await onConfirm(...)
+
+                    // ✅ só mostra cupom
                     setMostrarCupom(true);
-
-                    // ❌ NÃO CHAMA onConfirm aqui
                   }}
                   className="mt-4 bg-blue-600 text-white px-3 py-1 rounded"
                 >
@@ -478,7 +477,8 @@ export default function ModalPagamento({
         )}
 
         {mostrarCupom && pedidoFinalizado && (
-          <CupomTeste pedido={pedidoFinalizado} />
+          <CupomTeste pedido={pedidoFinalizado} onFinalizar={onFinalizar} />
+          // <CupomTeste pedido={pedidoFinalizado} />
         )}
       </div>
     </div>

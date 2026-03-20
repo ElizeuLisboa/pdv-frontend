@@ -1,12 +1,14 @@
 import React, { useState, useEffect, useRef } from "react";
+import CupomTeste from "./CupomPDV";
 import ItemCarrinho from "./ItemCarrinho";
 import ModalCadastroRapido from "./ModalCadastroRapido";
 import ModalPagamento from "./ModalPagamento";
 import ModalAutorizacao from "./caixa/ModalAutorizacao";
-import CupomTeste from "./CupomTeste";
+import CupomPDV from "./CupomPDV.jsx";
 import { toast } from "react-toastify";
 import { useAuth } from "../contexts/AuthContext.jsx";
 import api from "../services/api.js";
+
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
 
 export default function CaixaLojaComponent() {
@@ -32,17 +34,6 @@ export default function CaixaLojaComponent() {
     inputRef.current?.focus();
   }, []);
 
-  useEffect(() => {
-    if (!busca) return;
-
-    const delay = setTimeout(() => {
-      buscarProduto(busca);
-    }, 300);
-
-    return () => clearTimeout(delay);
-  }, [busca]);
-
-  // atalhos teclado globais: F2 paga, F3 cadastro, F4 autorizacao, Esc limpa busca
   useEffect(() => {
     const handler = (e) => {
       if (e.key === "F2") {
@@ -73,14 +64,44 @@ export default function CaixaLojaComponent() {
   }, []);
 
   const handleConfirmarPagamento = async (payload) => {
-    const response = await finalizarPedidoNoBackend(payload);
+    try {
+      console.log("onConfirm recebido:", payload);
 
-    setPedidoFinalizado(response.data);
+      // 🔥 PIX já tratado
+      if (payload === "PAGO") {
+        setMostrarModalPagamento(false);
+        return;
+      }
 
-    setCarrinho([]);
-    setItens([]);
-    setCliente(null);
-    setMostrarModalPagamento(false);
+      const itensFormatados = carrinho.map((i) => ({
+        produtoId: i.id,
+        quantidade: i.quantidade,
+        valor: i.price,
+      }));
+
+      const response = await api.post(
+        "/caixa/finalizar",
+        {
+          metodoPagamento: payload.metodoPagamento,
+          parcelas: payload.parcelas,
+          clienteId: cliente?.id || null,
+          itens: itensFormatados, // 🔥 AGORA SIM
+          valorTotal: total,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        },
+      );
+
+      setPedidoFinalizado(response.data);
+      setCarrinho([]);
+      setCliente(null);
+      setMostrarModalPagamento(false);
+    } catch (err) {
+      console.error("Erro ao finalizar pagamento:", err.response?.data || err);
+    }
   };
 
   const buscarProduto = async (termo) => {
@@ -270,6 +291,13 @@ export default function CaixaLojaComponent() {
     setCarrinho((prev) => prev.filter((item) => item.id !== id));
   };
 
+  const resetCaixa = () => {
+    setCarrinho([]);
+    setCliente(null);
+    setPedidoFinalizado(null);
+    setMostrarModalPagamento(false);
+  };
+
   return (
     <div className="h-full grid grid-cols-12 gap-4">
       {/* COLUNA ESQUERDA */}
@@ -310,6 +338,13 @@ export default function CaixaLojaComponent() {
             className="flex-1 border rounded p-3 text-lg"
             autoFocus
           />
+          {carrinho.length === 0 && !mostrarModalPagamento && (
+            <div className="text-center mt-6">
+              <div className="text-4xl font-bold text-green-600 animate-pulse">
+                🟢 CAIXA LIVRE
+              </div>
+            </div>
+          )}
           <div className="text-right">
             <div className="text-sm text-gray-500">Cliente</div>
             <div className="font-semibold">{cliente ? cliente.nome : "—"}</div>
@@ -453,6 +488,7 @@ export default function CaixaLojaComponent() {
           origem="PDV"
           onClose={() => setMostrarModalPagamento(false)}
           onConfirm={handleConfirmarPagamento}
+          onFinalizar={resetCaixa} // 🔥 AQUI
         />
       )}
 
@@ -460,6 +496,7 @@ export default function CaixaLojaComponent() {
         <CupomTeste
           pedido={pedidoFinalizado}
           onClose={() => setPedidoFinalizado(null)}
+          onFinalizar={resetCaixa}
         />
       )}
 
