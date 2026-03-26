@@ -15,7 +15,7 @@ export default function SelectCategorias() {
     setBusca("");
 
     if (id) {
-      navigate(`/produtos?familia=${id}`);
+      navigate(`/produtos?familia=${id}`, { replace: true });
     } else {
       navigate({
         pathname: "/produtos",
@@ -23,7 +23,6 @@ export default function SelectCategorias() {
       });
     }
   }
-
 
   if (loading) return null;
 

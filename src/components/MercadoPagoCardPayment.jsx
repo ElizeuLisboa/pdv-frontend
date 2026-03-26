@@ -30,10 +30,12 @@ export default function MercadoPagoCardPayment({ valor, onClose }) {
     }
   }, []);
 
-
   /* ---------------- INIT MERCADO PAGO ---------------- */
   useEffect(() => {
     const publicKey = import.meta.env.VITE_MP_PUBLIC_KEY;
+
+    console.log("MP SDK:", window.MercadoPago);
+    console.log("PUBLIC KEY:", publicKey);
 
     if (!publicKey || !window.MercadoPago) {
       console.error("MercadoPago SDK ou Public Key ausente");
@@ -78,13 +80,21 @@ export default function MercadoPagoCardPayment({ valor, onClose }) {
       cardNumber: form.cardNumber.replace(/\s/g, ""),
       cardholderName: form.cardholderName,
       cardExpirationMonth: form.cardExpirationMonth,
-      cardExpirationYear: `20${form.cardExpirationYear}`,
+
+      cardExpirationYear:
+        form.cardExpirationYear.length === 2
+          ? `20${form.cardExpirationYear}`
+          : form.cardExpirationYear,
+
+      //cardExpirationYear: `20${form.cardExpirationYear}`,
       securityCode: form.securityCode,
       identificationType: "CPF",
       identificationNumber: cpf,
     };
 
     const tokenResponse = await mp.createCardToken(cardData);
+
+    console.log("CARD DATA:", cardData);
 
     if (!tokenResponse?.id) {
       console.error("Erro token MP:", tokenResponse);
@@ -100,10 +110,17 @@ export default function MercadoPagoCardPayment({ valor, onClose }) {
 
   const pagar = async (e) => {
     e.preventDefault();
+
+    if (!mp) {
+      toast.error("Pagamento ainda está carregando");
+      return;
+    }
+
     setLoading(true);
 
     try {
-      const { token, cpf } = await criarToken();
+      // const { token, cpf } = await criarToken();
+      const { token, paymentMethodId, cpf } = await criarToken();
 
       const pedidoId = localStorage.getItem("pedidoId");
 
@@ -118,6 +135,7 @@ export default function MercadoPagoCardPayment({ valor, onClose }) {
         token,
         valor,
         installments: Number(form.installments),
+        paymentMethodId, // 👈 ESSENCIAL
         payer: {
           identification: {
             type: "CPF",
@@ -151,7 +169,6 @@ export default function MercadoPagoCardPayment({ valor, onClose }) {
     }
   };
 
-  
   /* ---------------- UI ---------------- */
   return (
     <form
@@ -242,9 +259,9 @@ export default function MercadoPagoCardPayment({ valor, onClose }) {
         onChange={handleChange}
         className="w-full border rounded-lg px-3 py-2"
       >
-        <option value={1}>1x</option>
-        <option value={2}>2x</option>
-        <option value={3}>3x</option>
+        <option value={1}>1x sem juros </option>
+        <option value={2}>2x sem juros</option>
+        <option value={3}>3x sem juros</option>
         <option value={4}>4x</option>
         <option value={5}>5x</option>
         <option value={6}>6x</option>
@@ -260,11 +277,22 @@ export default function MercadoPagoCardPayment({ valor, onClose }) {
       <div className="flex gap-3">
         <button
           type="submit"
+          disabled={loading || !mp}
+          className="flex-1 bg-blue-600 text-white py-2 rounded-lg"
+        >
+          {!mp
+            ? "Carregando pagamento..."
+            : loading
+              ? "Processando..."
+              : "Pagar agora"}
+        </button>
+        {/* <button
+          type="submit"
           disabled={loading}
           className="flex-1 bg-blue-600 text-white py-2 rounded-lg"
         >
           {loading ? "Processando..." : "Pagar agora"}
-        </button>
+        </button> */}
 
         <button
           type="button"

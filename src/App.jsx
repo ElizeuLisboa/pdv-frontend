@@ -37,6 +37,7 @@ import EditarCliente from "./pages/EditarCliente";
 import AcessoNegado from "./pages/AcessoNegado";
 import Sucesso from "./pages/Sucesso";
 import CadastroClienteSite from "./pages/CadastroClienteSite";
+import PedidoDetalhe from "./pages/PedidoDetalhe";
 
 
 export default function App() {
@@ -52,10 +53,12 @@ export default function App() {
               {/* 🔒 ÁREA PRINCIPAL (SITE) */}
               <Route element={<AppLayout />}>
                 <Route path="/" element={<Home />} />
-                <Route path="/produtos" element={<Produtos />} />
+                {/* <Route path="/produtos" element={<Produtos />} /> */}
+                <Route path="/produtos" element={<Home />} />
                 <Route path="/produtos/:id" element={<DetalhesProduto />} />
                 <Route path="/carrinho" element={<Carrinho />} />
                 <Route path="/Sucesso" element={<Sucesso />} /> 
+                <Route path="/pedido/:numeroPedido" element={<PedidoDetalhe />} />
                 <Route path="/cadastro" element={<CadastroClienteSite />} />
 
                 <Route

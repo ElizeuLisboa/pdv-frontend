@@ -21,13 +21,15 @@ export function CartProvider({ children }) {
     setItens((prev) => {
       const existente = prev.find((p) => p.id === produto.id);
 
+      const qtd = produto.quantidade || 1;
+
       if (existente) {
         return prev.map((p) =>
-          p.id === produto.id ? { ...p, quantidade: p.quantidade + 1 } : p,
+          p.id === produto.id ? { ...p, quantidade: p.quantidade + qtd } : p,
         );
       }
 
-      return [...prev, { ...produto, quantidade: 1 }];
+      return [...prev, { ...produto, quantidade: qtd }];
     });
   };
 
@@ -71,4 +73,3 @@ export function CartProvider({ children }) {
 export function useCart() {
   return useContext(CartContext);
 }
-

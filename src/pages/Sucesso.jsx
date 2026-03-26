@@ -148,12 +148,6 @@ export default function Sucesso() {
           Ver detalhes do pedido
         </button>
 
-        {/* <button
-          onClick={() => navigate("/produtos")}
-          className="bg-gray-200 px-4 py-2 rounded hover:bg-gray-300"
-        >
-          Continuar comprando
-        </button> */}
       </div>
     </div>
   );

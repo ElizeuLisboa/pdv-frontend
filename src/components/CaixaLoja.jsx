@@ -67,8 +67,12 @@ export default function CaixaLojaComponent() {
     try {
       console.log("onConfirm recebido:", payload);
 
-      // 🔥 PIX já tratado
-      if (payload === "PAGO") {
+      // 🔥 SE JÁ TEM PEDIDO (PIX), NÃO CHAMA BACKEND DE NOVO
+      if (pedidoFinalizado) {
+        console.log("⚠️ Pedido já foi criado (PIX), não chamando backend");
+
+        setCarrinho([]);
+        setCliente(null);
         setMostrarModalPagamento(false);
         return;
       }
@@ -85,7 +89,7 @@ export default function CaixaLojaComponent() {
           metodoPagamento: payload.metodoPagamento,
           parcelas: payload.parcelas,
           clienteId: cliente?.id || null,
-          itens: itensFormatados, // 🔥 AGORA SIM
+          itens: itensFormatados,
           valorTotal: total,
         },
         {
@@ -96,6 +100,7 @@ export default function CaixaLojaComponent() {
       );
 
       setPedidoFinalizado(response.data);
+
       setCarrinho([]);
       setCliente(null);
       setMostrarModalPagamento(false);
@@ -103,6 +108,55 @@ export default function CaixaLojaComponent() {
       console.error("Erro ao finalizar pagamento:", err.response?.data || err);
     }
   };
+
+  // const handleConfirmarPagamento = async (payload) => {
+  //   try {
+  //     console.log("onConfirm recebido:", payload);
+
+  //     // 🔥 PIX já tratado
+
+  //     if (payload === "PAGO") {
+  //       console.log("⚠️ PIX já foi finalizado no backend");
+  //       setMostrarModalPagamento(false);
+  //       setCarrinho([]);
+  //       setCliente(null);
+  //       return;
+  //     }
+  //     // if (payload === "PAGO") {
+  //     //   setMostrarModalPagamento(false);
+  //     //   return;
+  //     // }
+
+  //     const itensFormatados = carrinho.map((i) => ({
+  //       produtoId: i.id,
+  //       quantidade: i.quantidade,
+  //       valor: i.price,
+  //     }));
+
+  //     const response = await api.post(
+  //       "/caixa/finalizar",
+  //       {
+  //         metodoPagamento: payload.metodoPagamento,
+  //         parcelas: payload.parcelas,
+  //         clienteId: cliente?.id || null,
+  //         itens: itensFormatados, // 🔥 AGORA SIM
+  //         valorTotal: total,
+  //       },
+  //       {
+  //         headers: {
+  //           Authorization: `Bearer ${localStorage.getItem("token")}`,
+  //         },
+  //       },
+  //     );
+
+  //     setPedidoFinalizado(response.data);
+  //     setCarrinho([]);
+  //     setCliente(null);
+  //     setMostrarModalPagamento(false);
+  //   } catch (err) {
+  //     console.error("Erro ao finalizar pagamento:", err.response?.data || err);
+  //   }
+  // };
 
   const buscarProduto = async (termo) => {
     if (!termo?.trim()) return;
@@ -232,49 +286,6 @@ export default function CaixaLojaComponent() {
     }
   };
 
-  // FINALIZAR VENDA -> permanece como antes; fechará modal de pagamento
-  const finalizarVenda = async ({
-    metodoPagamento = "DINHEIRO",
-    parcelas = 1,
-    totalComJuros = null,
-    troco = 0,
-  }) => {
-    if (carrinho.length === 0) {
-      toast.info("Nenhum produto no carrinho");
-      return;
-    }
-
-    const payload = {
-      clienteId: cliente?.id ?? null,
-      itens: carrinho.map((i) => ({
-        produtoId: i.id,
-        quantidade: i.quantidade,
-        valor: i.price,
-      })),
-      metodoPagamento: dadosPagamento.forma,
-      parcelas: dadosPagamento.parcelas,
-      valorTotal: dadosPagamento.totalComJuros,
-
-      troco,
-    };
-
-    try {
-      setLoading(true);
-      await api.post("/caixa/finalizar", payload, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      });
-      toast.success("Venda registrada com sucesso");
-      setCarrinho([]);
-      setCliente(null);
-      setMostrarModalPagamento(false);
-    } catch (err) {
-      console.error(err);
-      toast.error("Erro ao registrar venda");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   // callback quando cadastro rápido terminar
   const onCadastroSuccess = ({ cliente, modo }) => {
     if (modo === "novo") {
@@ -365,14 +376,9 @@ export default function CaixaLojaComponent() {
                 <div className="flex items-center gap-3">
                   <img
                     src={p.fotoUrl || p.image || "/placeholder.png"}
-                    // src={
-                    //   p.thumbnail ||
-                    //   (p.image?.startsWith?.("http")
-                    //     ? p.image
-                    //     : `${API_URL}${p.image}`)
-                    // }
+
                     alt={p.title}
-                    className="w-12 h-12 object-cover rounded border"
+                    className="w-22 h-12 object-cover rounded border"
                     onError={(e) => {
                       e.currentTarget.src = "/placeholder.png";
                     }}

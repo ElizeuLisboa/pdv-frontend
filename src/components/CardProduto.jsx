@@ -25,23 +25,28 @@ export default function CardProduto({ produto }) {
   const price = produto?.price ?? 0; // Se price for undefined, mostra 0
 
   return (
-    <div className="border p-4 rounded shadow flex flex-col">
+    <div className="bg-white rounded-xl shadow hover:shadow-lg transition p-4">
       <img
+        src={produto.fotoUrl || produto.image}
+        alt={produto.title}
+        className="w-full h-40 object-cover rounded-lg"
+      />
+
+      {/* <img
         src={
           produto.image.startsWith("http")
             ? produto.image
             : `${API_URL}${produto.image}`
         }
         alt={produto.title}
-      />
-
+      /> */}
 
       <h3 className="text-lg font-bold">{title}</h3>
       <p className="text-amber-600 mb-2">{formatarPreco(price)}</p>
       <div className="mt-auto flex gap-2">
         <button
           onClick={() => navigate(`/produtos/${produto.id}`)}
-          className="flex-1 bg-amber-600 text-white px-3 py-1 rounded hover:bg-amber-700"
+          className="flex-1 bg-sky-600 text-white px-3 py-1 rounded hover:bg-sky-700"
         >
           Ver
         </button>

@@ -127,13 +127,7 @@ export default function AutoCompleteBusca() {
             >
               {p.title || p.nome}
             </li>
-            // <li
-            //   key={p.id}
-            //   onClick={() => handleSelect(p)}
-            //   className="px-3 py-2 hover:bg-amber-100 cursor-pointer text-sm text-black"
-            // >
-            //   {p.title || p.nome}
-            // </li>
+
           ))}
         </ul>
       )}

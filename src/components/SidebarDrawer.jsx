@@ -44,7 +44,7 @@ export default function SidebarDrawer({ aberta, onClose }) {
           >
             <aside
               className={`h-full bg-amber-600 text-white p-4 w-64 transform transition-transform duration-300 
-               ${aberta ? "translate-x-0" : "-translate-x-full"}`}
+               ${"translate-x-0"} `}
             >
               {/* <aside
               className="fixed top-[96px] left-0 h-[calc(100%-96px)] w-64 bg-amber-600 text-white p-4 transform transition-transform duration-300 z-30"
