@@ -21,11 +21,19 @@ const DetalhesProduto = () => {
   const { adicionarProduto } = useCart();
 
   const handleQuantidadeChange = (e) => {
-    const valor = parseInt(e.target.value, 10);
-    if (!isNaN(valor) && valor >= 1) {
-      setQuantidade(valor);
-    }
+    let value = Number(e.target.value);
+
+    if (value < 1) value = 1;
+
+    setQuantidade(value);
   };
+
+  // const handleQuantidadeChange = (e) => {
+  //   const valor = parseInt(e.target.value, 10);
+  //   if (!isNaN(valor) && valor >= 1) {
+  //     setQuantidade(valor);
+  //   }
+  // };
 
   useEffect(() => {
     const produtoId = Number(id);
@@ -153,14 +161,29 @@ const DetalhesProduto = () => {
             <label htmlFor="quantidade" className="text-sm font-medium">
               Quantidade:
             </label>
-            <input
+            <div className="flex items-center gap-2">
+              <button onClick={() => setQuantidade((q) => Math.max(1, q - 1))}>
+                -
+              </button>
+              <input
+                id="quantidade"
+                type="number"
+                min="1"
+                value={quantidade}
+                onFocus={(e) => e.target.select()} // 🔥 AQUI
+                onChange={handleQuantidadeChange}
+                className="border p-1 w-20 rounded text-center"
+              />
+              <button onClick={() => setQuantidade((q) => q + 1)}>+</button>
+            </div>
+            {/* <input
               id="quantidade"
               type="number"
               min="1"
               value={quantidade}
               onChange={handleQuantidadeChange}
               className="border p-1 w-20 rounded text-center"
-            />
+            /> */}
             {produto?.codigoBarras && (
               <p className="text-sm text-gray-500 mt-2">
                 Código de Barras: {produto.codigoBarras}

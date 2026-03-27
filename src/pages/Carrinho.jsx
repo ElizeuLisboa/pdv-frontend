@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
@@ -13,11 +13,45 @@ const Carrinho = () => {
   const [mostrarPagamento, setMostrarPagamento] = useState(false);
   const { usuario } = useAuth();
   const [mostrarPix, setMostrarPix] = useState(false);
+  const [pixData, setPixData] = useState(null);
+  const [copiado, setCopiado] = useState(false);
+
+  useEffect(() => {
+    if (!pixData) return;
+
+    const interval = setInterval(async () => {
+      try {
+        const pedidoId = localStorage.getItem("pedidoId");
+
+        const res = await api.get(`/pedidos/${pedidoId}`);
+
+        if (res.data.status === "PAGO") {
+          clearInterval(interval);
+
+          window.location.href = `/sucesso?external_reference=${pedidoId}&status=approved`;
+        }
+      } catch (err) {
+        console.error("Erro ao verificar status:", err);
+      }
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [pixData]);
 
   const total = (cartItems || []).reduce(
     (acc, item) => acc + item.price * (item.quantidade ?? item.quantity ?? 1),
     0,
   );
+
+  const copiarPix = async () => {
+    const codigo = pixData.point_of_interaction.transaction_data.qr_code;
+
+    await navigator.clipboard.writeText(codigo);
+
+    setCopiado(true);
+
+    setTimeout(() => setCopiado(false), 2000);
+  };
 
   const finalizarCompra = async () => {
     try {
@@ -30,17 +64,16 @@ const Carrinho = () => {
       const itensFormatados = cartItems.map((item) => ({
         produtoId: item.id ?? item.produtoId,
         quantidade: item.quantidade ?? item.quantity ?? 1,
-        valor: item.price,
+        preco: item.price,
       }));
 
       const token = localStorage.getItem("token");
-      console.log("TOKEN LIMPO:", token);
 
       const pedidoRes = await api.post(
         "/pedidos/site",
         {
           itens: itensFormatados,
-          valorTotal: total,
+          // valorTotal: total,
         },
         {
           headers: {
@@ -49,12 +82,9 @@ const Carrinho = () => {
         },
       );
 
-      // const pedidoId = pedidoRes.data?.pedido?.id;
-     const pedidoId = pedidoRes.data?.pedido?.id;
-                   // pedidoRes.data?.pedido?.id
+      const pedidoId = pedidoRes.data?.id;
 
-      console.log("RESPOSTA BACK:", pedidoRes.data);
-      console.log("PEDIDO ID:", pedidoRes.data?.pedidoId);
+      console.log("PEDIDO ID:", pedidoId);
 
       if (!pedidoId) {
         toast.error("Erro ao criar pedido");
@@ -77,110 +107,165 @@ const Carrinho = () => {
     }
   };
 
+  const pagarComPix = async () => {
+    try {
+      const pedidoId = localStorage.getItem("pedidoId");
+
+      const res = await api.post("/pagamentos/pix", {
+        pedidoId: Number(pedidoId),
+      });
+
+      console.log("PIX RESPONSE:", res.data);
+
+      setPixData(res.data);
+    } catch (err) {
+      console.error("Erro PIX:", err);
+    }
+  };
+
   return (
-    <div className="max-w-6xl mx-auto p-4">
-      <h2 className="text-2xl font-bold mb-6">🛒 Carrinho</h2>
+    <div className="w-full min-h-screen bg-gradient-to-br from-green-500 to-blue-900 flex items-center justify-center p-20">
+      <div className="w-full max-w-6xl bg-gradient-to-br from-indigo-500 to-green-900 rounded-2xl shadow-xl p-6">
+        <h2 className="text-2xl font-bold mb-6">🛒 Carrinho</h2>
+        {cartItems.length === 0 ? (
+          <div className="text-center text-gray-500 mt-10">
+            Seu carrinho está vazio.
+          </div>
+        ) : (
+          <div className="grid md:grid-cols-3 gap-6">
+            {/* 🟢 LISTA DE PRODUTOS */}
+            <div className="md:col-span-2 space-y-4">
+              {cartItems.map((item) => {
+                const quantidade = item.quantidade ?? item.quantity ?? 1;
+                const subtotal = item.price * quantidade;
 
-      {cartItems.length === 0 ? (
-        <div className="text-center text-gray-500 mt-10">
-          Seu carrinho está vazio.
-        </div>
-      ) : (
-        <div className="grid md:grid-cols-3 gap-6">
-          {/* 🟢 LISTA DE PRODUTOS */}
-          <div className="md:col-span-2 space-y-4">
-            {cartItems.map((item) => {
-              const quantidade = item.quantidade ?? item.quantity ?? 1;
-              const subtotal = item.price * quantidade;
+                return (
+                  <div
+                    key={item.id}
+                    className="flex gap-4 bg-white p-4 rounded shadow"
+                  >
+                    {/* IMAGEM */}
+                    <img
+                      src={item.fotoUrl || item.image || "/placeholder.png"}
+                      alt={item.title}
+                      className="w-20 h-20 object-contain"
+                    />
 
-              return (
-                <div
-                  key={item.id}
-                  className="flex gap-4 bg-white p-4 rounded shadow"
-                >
-                  {/* IMAGEM */}
-                  <img
-                    src={item.fotoUrl || item.image || "/placeholder.png"}
-                    alt={item.title}
-                    className="w-20 h-20 object-contain"
-                  />
+                    {/* INFO */}
+                    <div className="flex-1">
+                      <h3 className="font-semibold">{item.title}</h3>
 
-                  {/* INFO */}
-                  <div className="flex-1">
-                    <h3 className="font-semibold">{item.title}</h3>
+                      <p className="text-sm text-gray-500">
+                        Quantidade: {quantidade}
+                      </p>
 
-                    <p className="text-sm text-gray-500">
-                      Quantidade: {quantidade}
-                    </p>
+                      <p className="text-sm text-gray-500">
+                        Unitário: R$ {item.price.toFixed(2)}
+                      </p>
 
-                    <p className="text-sm text-gray-500">
-                      Unitário: R$ {item.price.toFixed(2)}
-                    </p>
-
-                    <p className="text-emerald-600 font-bold mt-1">
-                      Subtotal: R$ {subtotal.toFixed(2)}
-                    </p>
+                      <p className="text-emerald-600 font-bold mt-1">
+                        Subtotal: R$ {subtotal.toFixed(2)}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* 🟡 RESUMO */}
-          <div className="bg-white p-4 rounded shadow h-fit">
-            <h3 className="text-lg font-semibold mb-4">Resumo</h3>
-
-            <div className="flex justify-between mb-2">
-              <span>Total</span>
-              <span className="font-bold text-emerald-600">
-                R$ {total.toFixed(2)}
-              </span>
+                );
+              })}
             </div>
 
-            {/* 🔥 FRETE (SIMULADO) */}
-            <div className="text-sm text-gray-500 mb-4">
-              🚚 Frete grátis acima de R$ 200
-            </div>
-            <div className="flex flex-col gap-2">
-              {/* 🔥 PIX */}
-              <button
-                onClick={() => setMostrarPix(true)}
-                className="bg-purple-600 text-white py-2 rounded hover:bg-purple-700"
-              >
-                Pagar com PIX
-              </button>
+            {/* 🟡 RESUMO */}
+            <div className="bg-white p-4 rounded shadow h-fit">
+              <h3 className="text-lg font-semibold mb-4">Resumo</h3>
 
-              {/* 💳 MERCADO PAGO */}
-              <button
-                onClick={finalizarCompra}
-                className="bg-emerald-600 text-white py-2 rounded hover:bg-emerald-700"
-              >
-                Finalizar Compra (Cartão)
-              </button>
+              <div className="flex justify-between mb-2">
+                <span>Total</span>
+                <span className="font-bold text-emerald-600">
+                  R$ {total.toFixed(2)}
+                </span>
+              </div>
 
-              {/* 🧹 LIMPAR */}
-              <button
-                onClick={clearCart}
-                className="bg-red-500 text-white py-2 rounded hover:bg-red-600"
-              >
-                Esvaziar Carrinho
-              </button>
+              {/* 🔥 FRETE (SIMULADO) */}
+              <div className="text-sm text-gray-500 mb-4">
+                🚚 Frete grátis acima de R$ 200
+              </div>
+              <div className="flex flex-col gap-2">
+                {/* 💳 MERCADO PAGO */}
+                <button
+                  onClick={finalizarCompra}
+                  className="bg-emerald-600 text-white py-2 rounded hover:bg-emerald-700"
+                >
+                  💳 Pagar com Cartão
+                </button>
+
+                {/* 🔥 PIX */}
+                <button
+                  onClick={pagarComPix}
+                  className="bg-green-600 text-white px-4 py-2 rounded"
+                >
+                  💚 Pagar com PIX
+                </button>
+
+                {/* 🧹 LIMPAR */}
+                <button
+                  onClick={clearCart}
+                  className="bg-red-500 text-white py-2 rounded hover:bg-red-600"
+                >
+                  Esvaziar Carrinho
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
-
-      {/* 💳 MODAL PAGAMENTO */}
-      {mostrarPagamento && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white p-4 rounded-xl w-full max-w-lg">
-            <MercadoPagoCardPayment
-              valor={total}
-              onClose={() => setMostrarPagamento(false)}
-            />
+        )}
+        {/* 💳 MODAL PAGAMENTO */}
+        {mostrarPagamento && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-white p-4 rounded-xl w-full max-w-lg">
+              <MercadoPagoCardPayment
+                valor={total}
+                onClose={() => setMostrarPagamento(false)}
+              />
+            </div>
           </div>
-        </div>
-      )}
+        )}
+        {/* 🔥 PIX (AQUI QUE ENTRA) */}
+        {pixData && (
+          <div className="mt-6 bg-white p-6 rounded-2xl shadow-xl text-center max-w-md mx-auto">
+            <h2 className="text-xl font-bold text-gray-800 mb-2">
+              💚 Pagamento via PIX
+            </h2>
+
+            <p className="text-gray-500 text-sm mb-4">
+              Escaneie o QR Code ou copie a chave abaixo
+            </p>
+
+            {/* QR CODE */}
+            <div className="bg-gray-100 p-4 rounded-xl inline-block">
+              <img
+                src={`data:image/png;base64,${pixData.point_of_interaction.transaction_data.qr_code_base64}`}
+                alt="QR Code"
+                className="w-56 h-56 object-contain mx-auto"
+              />
+            </div>
+
+            {/* STATUS */}
+            <p className="mt-4 text-yellow-600 font-medium animate-pulse">
+              ⏳ Aguardando pagamento...
+            </p>
+
+            {/* CÓDIGO PIX */}
+            <div className="mt-4 bg-gray-100 p-3 rounded text-xs break-all">
+              {pixData.point_of_interaction.transaction_data.qr_code}
+            </div>
+
+            {/* BOTÃO COPIAR */}
+            <button
+              onClick={copiarPix}
+              className="mt-4 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition"
+            >
+              {copiado ? "✅ Copiado!" : "📋 Copiar código PIX"}
+            </button>
+          </div>
+        )}{" "}
+      </div>
     </div>
   );
 };

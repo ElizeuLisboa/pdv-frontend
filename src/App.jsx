@@ -39,7 +39,6 @@ import Sucesso from "./pages/Sucesso";
 import CadastroClienteSite from "./pages/CadastroClienteSite";
 import PedidoDetalhe from "./pages/PedidoDetalhe";
 
-
 export default function App() {
   return (
     <AuthProvider>
@@ -57,8 +56,8 @@ export default function App() {
                 <Route path="/produtos" element={<Home />} />
                 <Route path="/produtos/:id" element={<DetalhesProduto />} />
                 <Route path="/carrinho" element={<Carrinho />} />
-                <Route path="/Sucesso" element={<Sucesso />} /> 
-                <Route path="/pedido/:numeroPedido" element={<PedidoDetalhe />} />
+                <Route path="/Sucesso" element={<Sucesso />} />
+                <Route path="/pedido/:id" element={<PedidoDetalhe />} />
                 <Route path="/cadastro" element={<CadastroClienteSite />} />
 
                 <Route
@@ -133,7 +132,6 @@ export default function App() {
                     </RequireAuth>
                   }
                 />
-
               </Route>
 
               {/* 🔓 ROTAS PÚBLICAS */}
@@ -164,7 +162,6 @@ export default function App() {
                   </RequireAuth>
                 }
               />
-
             </Routes>
 
             <ToastContainer />

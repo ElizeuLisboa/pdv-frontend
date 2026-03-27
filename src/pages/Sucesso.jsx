@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useFiltro } from "../contexts/FiltroContext";
-import api from "../services/api";  
+import api from "../services/api";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
 
@@ -18,7 +18,8 @@ export default function Sucesso() {
 
   const navigate = useNavigate();
 
-  
+  console.log("ID DO PEDIDO:", pedidoId);
+
   useEffect(() => {
     if (!pedidoId) {
       toast.error("Pedido inválido.");
@@ -144,11 +145,15 @@ export default function Sucesso() {
           Ver meus pedidos
         </button>
 
-        <button onClick={() => navigate(`/pedido/${pedido.numeroPedido}`)}>
+        <button onClick={() => navigate(`/pedido/${pedidoId}`)}>
           Ver detalhes do pedido
         </button>
-
       </div>
     </div>
   );
 }
+
+/*
+id: 1326745320
+external_reference: "60"
+status: "pending" */
