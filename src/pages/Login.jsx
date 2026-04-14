@@ -5,58 +5,45 @@
 // import api from "../services/api";
 
 // export default function LoginPage() {
-//   const [email, setEmail] = useState("");
+//   const [loginInput, setLoginInput] = useState("");
 //   const [password, setPassword] = useState("");
 //   const [showPassword, setShowPassword] = useState(false);
-//   const [tipo, setTipo] = useState("cliente"); // cliente | usuario
 
-//   const { login } = useAuth(); // ✅ CORRETO
+//   const { login } = useAuth();
 //   const navigate = useNavigate();
 
 //   const handleSubmit = async (e) => {
 //     e.preventDefault();
-//     localStorage.clear();
-//     try {
-//       const url = tipo === "cliente" ? "/auth/login" : "/usuario/login";
 
-//       const response = await api.post(url, {
-//         email,
+//     // 🔥 limpa sessão antiga
+//     localStorage.clear();
+
+//     try {
+//       const response = await api.post("/auth/login-unificado", {
+//         login: loginInput,
 //         password,
 //       });
 
-//       // 🛒 CLIENTE
+//       const { token, user, tipo } = response.data;
+
+//       if (!token) {
+//         toast.error("Token não recebido");
+//         return;
+//       }
+
+//       // 🔐 salva sessão
+//       login(user, token);
+
+//       toast.success("Login realizado com sucesso!");
+
+//       // 🔀 redirecionamento inteligente
 //       if (tipo === "cliente") {
-//         const token = response.data.jwt;
-//         const cliente = response.data.cliente;
-
-//         login(cliente, token); // ✅ usa o contexto
-
-//         localStorage.setItem("cliente", JSON.stringify(cliente));
-
-//         toast.success("Login de cliente realizado!");
-
 //         navigate("/produtos", { replace: true });
 //         return;
 //       }
 
-//       // 🏢 USUÁRIO (ADMIN / CAIXA / SUPERUSER)
-//       //const usuario = response.data;
-
-//       const usuario = response.data.usuario;
-//       const token = response.data.token || response.data.jwt;
-
-//       if (!token) {
-//         toast.error("Token não recebido do servidor");
-//         return;
-//       }
-
-//       login(usuario, token); // ✅ agora correto
-
-//       localStorage.setItem("empresaId", usuario.empresaId);
-
-//       toast.success("Login administrativo realizado!");
-
-//       if (usuario.role === "CAIXA") {
+//       // 🏢 usuário do sistema
+//       if (user.role === "CAIXA") {
 //         navigate("/caixa", { replace: true });
 //       } else {
 //         navigate("/dashboard", { replace: true });
@@ -71,39 +58,18 @@
 //     <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded shadow">
 //       <h2 className="text-2xl font-bold mb-4 text-center">Login</h2>
 
-//       {/* 🔥 SELETOR */}
-//       <div className="flex mb-6 border rounded overflow-hidden">
-//         <button
-//           type="button"
-//           onClick={() => setTipo("cliente")}
-//           className={`flex-1 py-2 ${
-//             tipo === "cliente" ? "bg-amber-600 text-white" : "bg-gray-100"
-//           }`}
-//         >
-//           🛒 Cliente
-//         </button>
-
-//         <button
-//           type="button"
-//           onClick={() => setTipo("usuario")}
-//           className={`flex-1 py-2 ${
-//             tipo === "usuario" ? "bg-indigo-600 text-white" : "bg-gray-100"
-//           }`}
-//         >
-//           🏢 Painel
-//         </button>
-//       </div>
-
 //       <form onSubmit={handleSubmit} className="space-y-4">
+//         {/* 🔥 INPUT UNIFICADO */}
 //         <input
-//           type="email"
-//           placeholder="Seu e-mail"
-//           value={email}
-//           onChange={(e) => setEmail(e.target.value)}
+//           type="text"
+//           placeholder="Digite seu email, telefone ou nome"
+//           value={loginInput}
+//           onChange={(e) => setLoginInput(e.target.value)}
 //           className="w-full border px-4 py-2 rounded"
 //           required
 //         />
 
+//         {/* 🔒 SENHA */}
 //         <div className="relative">
 //           <input
 //             type={showPassword ? "text" : "password"}
@@ -126,14 +92,13 @@
 //           Entrar
 //         </button>
 
-//         {tipo === "cliente" && (
-//           <p className="text-center text-sm">
-//             Não tem conta?
-//             <Link to="/cadastro" className="text-amber-600 font-semibold ml-1">
-//               Cadastre-se
-//             </Link>
-//           </p>
-//         )}
+//         {/* 🔗 CADASTRO SEMPRE VISÍVEL */}
+//         <p className="text-center text-sm">
+//           Não tem conta?
+//           <Link to="/cadastro" className="text-amber-600 font-semibold ml-1">
+//             Cadastre-se
+//           </Link>
+//         </p>
 //       </form>
 //     </div>
 //   );
@@ -144,22 +109,25 @@ import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useAuth } from "../contexts/AuthContext";
 import api from "../services/api";
+import { setEmpresaSelecionadaGlobal } from "../services/empresaStore";
 
 export default function LoginPage() {
   const [loginInput, setLoginInput] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
-  const { login } = useAuth();
+  const { login, logout } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // 🔥 limpa sessão antiga
-    localStorage.clear();
-
     try {
+      // 🔥 LIMPA TUDO (ANTES DO LOGIN)
+      logout(); // limpa contexto
+      localStorage.clear(); // limpa storage
+      setEmpresaSelecionadaGlobal(null); // limpa store global
+
       const response = await api.post("/auth/login-unificado", {
         login: loginInput,
         password,
@@ -167,23 +135,28 @@ export default function LoginPage() {
 
       const { token, user, tipo } = response.data;
 
-      if (!token) {
-        toast.error("Token não recebido");
+      if (!token || !user) {
+        toast.error("Falha no login");
         return;
       }
 
-      // 🔐 salva sessão
+      // 🔐 salva sessão corretamente
       login(user, token);
+
+      // 🔥 se for usuário, define empresa padrão
+      if (tipo === "usuario" && user.empresaId) {
+        setEmpresaSelecionadaGlobal(user.empresaId);
+        localStorage.setItem("empresaSelecionada", user.empresaId);
+      }
 
       toast.success("Login realizado com sucesso!");
 
-      // 🔀 redirecionamento inteligente
+      // 🔀 redirecionamento
       if (tipo === "cliente") {
         navigate("/produtos", { replace: true });
         return;
       }
 
-      // 🏢 usuário do sistema
       if (user.role === "CAIXA") {
         navigate("/caixa", { replace: true });
       } else {
@@ -200,7 +173,6 @@ export default function LoginPage() {
       <h2 className="text-2xl font-bold mb-4 text-center">Login</h2>
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        {/* 🔥 INPUT UNIFICADO */}
         <input
           type="text"
           placeholder="Digite seu email, telefone ou nome"
@@ -210,7 +182,6 @@ export default function LoginPage() {
           required
         />
 
-        {/* 🔒 SENHA */}
         <div className="relative">
           <input
             type={showPassword ? "text" : "password"}
@@ -233,7 +204,6 @@ export default function LoginPage() {
           Entrar
         </button>
 
-        {/* 🔗 CADASTRO SEMPRE VISÍVEL */}
         <p className="text-center text-sm">
           Não tem conta?
           <Link to="/cadastro" className="text-amber-600 font-semibold ml-1">
