@@ -1,4 +1,5 @@
 import axios from "axios";
+import { getEmpresaSelecionada } from "./empresaStore";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
 
@@ -10,7 +11,6 @@ const api = axios.create({
   withCredentials: true,
 });
 
-// 🔹 INTERCEPTOR DE REQUEST
 api.interceptors.request.use(
   (config) => {
     if (!config.headers) {
@@ -26,10 +26,15 @@ api.interceptors.request.use(
     // JWT TOKEN
     const token = localStorage.getItem("token");
 
-    if (token) {
+    if (token && token !== "no-token") {
       config.headers.Authorization = `Bearer ${token}`;
     }
 
+    const empresaSelecionada = getEmpresaSelecionada();
+
+    if (empresaSelecionada) {
+      config.headers["x-empresa-id"] = empresaSelecionada;
+    }
     return config;
   },
   (error) => Promise.reject(error),
@@ -37,16 +42,13 @@ api.interceptors.request.use(
 
 // 🔹 INTERCEPTOR DE RESPONSE
 api.interceptors.response.use(
-  
   (response) => response,
   (error) => {
-    
-    if (error.response && error.response.status === 401) {
+    if (error.response?.status === 401) {
+      console.warn("401 detectado");
 
-      localStorage.removeItem("token");
-      localStorage.removeItem("usuario");
-
-      // window.location.href = "/login";
+      // só desloga se for realmente necessário
+      // exemplo: endpoint de autenticação
     }
 
     return Promise.reject(error);

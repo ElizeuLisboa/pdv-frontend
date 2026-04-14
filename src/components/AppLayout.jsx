@@ -13,29 +13,23 @@ export default function AppLayout() {
   if (loading) return null;
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col bg-gradient-to-br from-indigo-100 to-green-100">
+      {/* HEADER */}
       <Header abrirSidebar={() => setSidebarAberta(true)} />
 
-      <div className="flex flex-1">
-        {/* Sidebar desktop */}
-        <div className="hidden md:block">
-          <Sidebar
-            aberta={true}
-            onClose={() => setSidebarAberta(false)}
-          />
-        </div>
-
-        {/* Sidebar mobile */}
-        <SidebarDrawer
+      {/* CONTEÚDO */}
+      <div className="flex flex-1 overflow-hidden">
+        {/* SIDEBAR */}
+        <Sidebar
           aberta={sidebarAberta}
           onClose={() => setSidebarAberta(false)}
         />
 
-        <main className="flex-1 p-4 bg-gray-50">
+        {/* MAIN */}
+        <main className="flex-1 p-4 overflow-y-auto">
           <Outlet />
         </main>
       </div>
     </div>
   );
 }
-

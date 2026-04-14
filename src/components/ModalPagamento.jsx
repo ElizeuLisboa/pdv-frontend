@@ -229,9 +229,6 @@ export default function ModalPagamento({
           // await onConfirm(payload);
           console.log("PIX detectado como pago");
 
-          // ❌ NÃO chama onConfirm aqui
-          // await onConfirm(payload);
-
           setMostrarCupom(true);
 
           // limpar estados

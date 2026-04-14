@@ -1,106 +1,122 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import { useEffect, useState } from "react";
+import api from "../services/api";
+import { useEmpresa } from "../contexts/EmpresaContext";
 
 export default function Sidebar({ aberta, onClose }) {
-  const { usuario, logout, loading } = useAuth();
+  const { usuario, logout } = useAuth();
   const navigate = useNavigate();
-
-  // if (loading) return null;
-
+  const [empresaNome, setEmpresaNome] = useState(null);
+  const { empresaSelecionada } = useEmpresa();
+  // const empresaNome = localStorage.getItem("empresaNome");
   const isAdmin = usuario?.role === "ADMIN" || usuario?.role === "SUPERUSER";
-  const isCaixa = usuario?.role === "CAIXA";
+
   const isAuthenticated = !!usuario;
 
-  console.log("USUARIO SIDEBAR:", usuario);
+  useEffect(() => {
+    if (!empresaSelecionada) return;
+
+    api
+      .get(`/empresas/${empresaSelecionada}`)
+      .then((res) => {
+        setEmpresaNome(res.data.nome);
+      })
+      .catch((err) => {
+        console.error("Erro ao buscar empresa:", err);
+      });
+  }, [empresaSelecionada]);
 
   const handleLogout = () => {
-    if (isCaixa) {
-      navigate("/apresentacao");
-    } else {
-      logout();
-      navigate("/");
-    }
+    logout();
+    navigate("/");
     onClose();
   };
 
-  const renderLink = (to, label, isEnabled = true) =>
-    isEnabled ? (
-      <Link to={to} className="block hover:underline" onClick={onClose}>
-        {label}
-      </Link>
-    ) : (
-      <span className="block text-white/50 cursor-not-allowed">{label}</span>
-    );
+  const renderLink = (to, label) => (
+    <Link
+      to={to}
+      onClick={onClose}
+      className="block px-3 py-2 rounded-lg hover:bg-gray-800 transition"
+    >
+      {label}
+    </Link>
+  );
 
-   return (
+  return (
     <>
-      {/* 🔥 OVERLAY MOBILE */}
+      {/* OVERLAY MOBILE */}
       {aberta && (
         <div
-          className="fixed inset-0 bg-black/40 z-40 md:hidden"
           onClick={onClose}
+          className="fixed inset-0 bg-black/40 z-40 md:hidden"
         />
       )}
-
       <aside
         className={`
-        bg-gray-900 text-white shadow-lg flex flex-col z-50
-        w-64 h-full
-        transition-transform duration-300
-        md:static md:translate-x-0 md:flex
-        fixed top-0 left-0
+         fixed top-0 left-0 h-full 
+         w-64 min-w-[16rem] flex-shrink-0
+         bg-gray-900 text-white
+         shadow-lg z-50
+         transform transition-transform duration-300
+
         ${aberta ? "translate-x-0" : "-translate-x-full"}
-      `}
+
+         md:translate-x-0 md:static md:flex md:flex-col
+     `}
       >
         {/* Cabeçalho */}
         <div className="p-6 text-xl font-bold border-b border-gray-700 flex justify-between items-center">
-          {isCaixa ? "🧾 PDV" : "🛍️ Minha Loja"}
-          <button className="md:hidden text-white text-2xl" onClick={onClose}>
+          🛍️ Minha Loja
+          <button className="md:hidden text-2xl" onClick={onClose}>
             &times;
           </button>
         </div>
+        <div className="px-4 py-2 text-xs text-gray-400 border-b border-gray-700">
+          {usuario?.empresaId && (
+            <p className="text-xs text-emerald-400">Empresa: {empresaNome}</p>
+          )}
+        </div>
 
-        {/* Navegação */}
-        <nav className="flex-1 px-4 py-6 space-y-4 text-sm">
-          {isCaixa ? (
-            <>{renderLink("/caixa", "Caixa")}</>
-          ) : (
+        {/* Menu */}
+        {/* flex-1 px-4 py-6 space-y-3 text-sm overflow-y-auto" */}
+        <nav className="flex-1 px-4 py-6 space-y-3 text-sm overflow-y-auto">
+          {renderLink("/produtos", "🧭 Início")}
+          {renderLink("/produtos", "🛍️ Produtos")}
+          {renderLink("/carrinho", "🛒 Carrinho")}
+          {isAuthenticated && renderLink("/pedidos/meus", "📦 Meus Pedidos")}
+
+          {isAdmin && (
             <>
-              {renderLink("/", "🏠 Início")}
-              {renderLink("/produtos", "🛍️ Produtos")}
-              {renderLink("/carrinho", "🛒 Carrinho")}
-              {renderLink("/pedidos/meus", "📦 Meus Pedidos", isAuthenticated)}
-
-              {/* 🔥 ADMIN */}
-              {isAdmin && (
-                <>
-                  {renderLink("/clientes", "Clientes")}
-                  {renderLink("/produtos/novo", "Novo Produto")}
-                  {renderLink("/transportadoras", "Transportadoras")} 
-                  {renderLink("/dashboard", "Dashboard")}
-                </>
+              {renderLink("/clientes", "Clientes")}
+              {renderLink("/produtos/novo", "Novo Produto")}
+              {renderLink("/transportadoras", "Transportadoras")}
+              {renderLink("/dashboard", "Dashboard")}
+              {usuario?.role === "SUPERUSER" && (
+                <>{renderLink("/empresas", "🏢 Empresas")}</>
               )}
-
-              {/* 🔥 CATEGORIAS */}
-              <div className="mt-6 border-t border-gray-700 pt-4">
-                <p className="text-xs uppercase text-gray-400 mb-2">
-                  Categorias
-                </p>
-
-                <ul className="space-y-2 text-sm">
-                  <li className="cursor-pointer hover:text-emerald-400">
-                    🍬 Doces
-                  </li>
-                  <li className="cursor-pointer hover:text-emerald-400">
-                    🍫 Chocolates
-                  </li>
-                  <li className="cursor-pointer hover:text-emerald-400">
-                    🥜 Amendoim
-                  </li>
-                </ul>
-              </div>
             </>
           )}
+
+          {/* Categorias */}
+          <div className="mt-6 border-t border-gray-700 pt-4">
+            <p className="text-xs uppercase text-gray-400 mb-2">Categorias</p>
+
+            <ul className="space-y-2">
+              <li className="hover:text-emerald-400 cursor-pointer">
+                🍬 Doces
+              </li>
+              <li className="hover:text-emerald-400 cursor-pointer">
+                🍫 Chocolates
+              </li>
+              <li className="hover:text-emerald-400 cursor-pointer">
+                🥜 Amendoim
+              </li>
+              <li className="hover:text-emerald-400 cursor-pointer">
+                🍬 Balas
+              </li>
+            </ul>
+          </div>
         </nav>
 
         {/* Rodapé */}
@@ -110,17 +126,13 @@ export default function Sidebar({ aberta, onClose }) {
               <p className="text-sm mb-2">Olá, {usuario.nome.split(" ")[0]}</p>
               <button
                 onClick={handleLogout}
-                className="hover:underline text-sm"
+                className="text-sm hover:underline"
               >
                 Sair
               </button>
             </>
           ) : (
-            <Link
-              to="/login"
-              onClick={onClose}
-              className="hover:underline text-sm"
-            >
+            <Link to="/login" className="text-sm hover:underline">
               Entrar
             </Link>
           )}

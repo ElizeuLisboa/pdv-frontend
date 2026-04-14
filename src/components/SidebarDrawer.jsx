@@ -43,7 +43,7 @@ export default function SidebarDrawer({ aberta, onClose }) {
             leaveTo="-translate-x-full"
           >
             <aside
-              className={`h-full bg-amber-600 text-white p-4 w-64 transform transition-transform duration-300 
+              className={`h-full bg-gray-900 text-white p-4 w-64 transform transition-transform duration-300 
                ${"translate-x-0"} `}
             >
               {/* <aside
@@ -53,14 +53,14 @@ export default function SidebarDrawer({ aberta, onClose }) {
                 <Link
                   to="/produtos"
                   onClick={onClose}
-                  className="hover:bg-amber-500 px-2 py-1 rounded"
+                  className="hover:bg-gray-900 px-2 py-1 rounded"
                 >
                   Produtos
                 </Link>
                 <Link
                   to="/carrinho"
                   onClick={onClose}
-                  className="hover:bg-amber-500 px-2 py-1 rounded"
+                  className="hover:bg-gray-900 px-2 py-1 rounded"
                 >
                   Carrinho
                 </Link>
@@ -71,7 +71,7 @@ export default function SidebarDrawer({ aberta, onClose }) {
                       to={to}
                       key={label}
                       onClick={onClose}
-                      className="hover:bg-amber-500 px-2 py-1 rounded"
+                      className="hover:bg-gray-900 px-2 py-1 rounded"
                     >
                       {label}
                     </Link>

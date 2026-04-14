@@ -1,123 +1,49 @@
-// import React, { useState } from "react";
-// import { Link, useNavigate } from "react-router-dom";
-// import SidebarDrawer from "./SidebarDrawer";
-// import SelectCategorias from "./SelectCategorias";
-// import AutoCompleteBusca from "./AutoCompleteBusca";
-// // import InputBusca from "./InputBusca";
-// import { useAuth } from "../contexts/AuthContext";
-// import { useFiltro } from "../contexts/FiltroContext";
-
-// export default function Header() {
-//   const navigate = useNavigate();
-//   const { usuario, logout, isAutenticado } = useAuth();
-//   const { categoriaSelecionada, setCategoriaSelecionada, busca, setBusca } =
-//     useFiltro();
-
-//   const [sidebarAberta, setSidebarAberta] = useState(false);
-
-//   const handleBuscar = (e) => {
-//     e.preventDefault();
-
-//     const params = new URLSearchParams();
-
-//     if (categoriaSelecionada) params.append("familia", categoriaSelecionada);
-
-//     if (busca) params.append("nome", busca);
-
-//     navigate(`/produtos${params.toString() ? `?${params}` : ""}`);
-//   };
-
-//   return (
-//     <>
-//       <SidebarDrawer
-//         aberta={sidebarAberta}
-//         onClose={() => setSidebarAberta(false)}
-//       />
-//       <header className="bg-amber-600 text-white shadow sticky top-0 z-50 w-full px-4 py-2 flex items-center justify-between">
-//         {/* Logo + Home */}
-//         <div className="flex items-center space-x-3">
-//           <button
-//             onClick={() => setSidebarAberta(true)}
-//             className="text-2xl md:hidden"
-//           >
-//             ☰
-//           </button>
-//           <img
-//             src="/LogoRoberta.jpg"
-//             alt="Minha Loja"
-//             className="h-10 object-contain"
-//           />
-//           <button
-//             onClick={() => {
-//               setCategoriaSelecionada("");
-//               setBusca("");
-//               navigate("/produtos");
-//             }}
-//             className="ml-4 bg-white text-amber-600 px-3 py-1 rounded"
-//           >
-//             Página Inicial
-//           </button>
-//         </div>
-
-//         {/* Busca */}
-//         <div className="relative flex-1 max-w-2xl mx-4">
-//           <div className="flex gap-2 items-center w-full">
-//             <SelectCategorias />
-//             <AutoCompleteBusca />
-//           </div>
-
-//         </div>
-
-//         <div className="flex items-center gap-3 text-sm">
-//           {isAutenticado ? (
-//             <>
-//               <span>
-//                 Olá, {usuario?.nome ? usuario.nome.split(" ")[0] : "Cliente"}
-//               </span>
-//               <button
-//                 onClick={() => {
-//                   logout();
-//                   navigate("/"); // volta pra home
-//                 }}
-//                 className="ml-2 px-2 py-1 rounded bg-red-500 hover:bg-red-600 text-white text-xs"
-//               >
-//                 Sair
-//               </button>
-//             </>
-//           ) : (
-//             <Link to="/login" className="hover:underline">
-//               Olá, faça seu login
-//             </Link>
-//           )}
-
-//           <Link to="/carrinho" className="relative">
-//             <img
-//               src="/shopping-cart.png"
-//               alt="Carrinho"
-//               className="w-6 h-6 ml-2"
-//             />
-//           </Link>
-//         </div>
-//       </header>
-//     </>
-//   );
-// }
-
-import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import SidebarDrawer from "./SidebarDrawer";
+import { useAuth } from "../contexts/AuthContext";
 import SelectCategorias from "./SelectCategorias";
 import AutoCompleteBusca from "./AutoCompleteBusca";
-import { useAuth } from "../contexts/AuthContext";
 import { useFiltro } from "../contexts/FiltroContext";
+import { useEffect, useState } from "react";
+import { useEmpresa } from "../contexts/EmpresaContext";
+import { setEmpresaSelecionadaGlobal } from "../services/empresaStore";
 
-export default function Header() {
+import api from "../services/api";
+
+export default function Header({ abrirSidebar }) {
   const navigate = useNavigate();
   const { usuario, logout, isAutenticado } = useAuth();
+  const [empresas, setEmpresas] = useState([]);
   const { categoriaSelecionada, setCategoriaSelecionada, busca, setBusca } =
     useFiltro();
+  const { empresaSelecionada, setEmpresaSelecionada } = useEmpresa();
+ 
+  useEffect(() => {
+    const saved = localStorage.getItem("empresaSelecionada");
 
-  const [sidebarAberta, setSidebarAberta] = useState(false);
+    if (saved) {
+      setEmpresaSelecionada(Number(saved));
+    }
+  }, []);
+
+  useEffect(() => {
+    if (empresaSelecionada) {
+      localStorage.setItem("empresaSelecionada", empresaSelecionada);
+    }
+  }, [empresaSelecionada]);
+
+  useEffect(() => {
+    async function carregarEmpresas() {
+      try {
+        const res = await api.get("/empresas"); // 👈 endpoint
+        setEmpresas(res.data);
+      } catch (err) {
+        console.error("Erro ao carregar empresas", err);
+      }
+    }
+
+    carregarEmpresas();
+  }, []);
+  console.log("Empresas carregadas:", empresas);
 
   const handleBuscar = (e) => {
     e.preventDefault();
@@ -131,86 +57,83 @@ export default function Header() {
   };
 
   return (
-    <>
-      <SidebarDrawer
-        aberta={sidebarAberta}
-        onClose={() => setSidebarAberta(false)}
-      />
+    <header className="bg-gray-900 text-white shadow sticky top-0 z-50 w-full px-4 py-2 flex items-center justify-between">
+      {/* ESQUERDA */}
+      <div className="flex items-center gap-3">
+        <button onClick={abrirSidebar} className="text-2xl md:hidden">
+          ☰
+        </button>
 
-      <header className="bg-gray-900 text-white shadow sticky top-0 z-50 w-full px-4 py-2 flex items-center justify-between">
-        {/* ESQUERDA */}
-        <div className="flex items-center space-x-3">
-          <button
-            onClick={() => setSidebarAberta(true)}
-            className="text-2xl md:hidden"
-          >
-            ☰
-          </button>
+        <img src="/LogoRoberta.jpg" className="h-10" />
 
-          <img
-            src="/LogoRoberta.jpg"
-            alt="Minha Loja"
-            className="h-10 object-contain"
-          />
-
-          <button
-            onClick={() => {
-              setCategoriaSelecionada("");
-              setBusca("");
-              navigate("/produtos");
-            }}
-            className="ml-2 bg-emerald-600 hover:bg-emerald-700 px-3 py-1 rounded text-sm"
-          >
-            Início
-          </button>
-        </div>
-
-        {/* BUSCA */}
-        <form
-          onSubmit={handleBuscar}
-          className="hidden md:flex flex-1 max-w-2xl mx-4 gap-2"
+        <button
+          onClick={() => {
+            setCategoriaSelecionada("");
+            setBusca("");
+            navigate("/produtos");
+          }}
+          className="bg-emerald-600 px-3 py-1 rounded text-sm"
         >
-          <SelectCategorias />
-          <AutoCompleteBusca />
+          Início
+        </button>
+      </div>
 
-          <button
-            type="submit"
-            className="bg-emerald-600 px-3 py-1 rounded hover:bg-emerald-700"
-          >
-            🔍
-          </button>
-        </form>
+      {/* BUSCA */}
+      <form
+        onSubmit={handleBuscar}
+        className="hidden md:flex flex-1 max-w-2xl mx-4 gap-2"
+      >
+        <SelectCategorias />
+        <AutoCompleteBusca />
+        <button className="bg-emerald-600 px-3 py-1 rounded">🔍</button>
+      </form>
 
-        {/* DIREITA */}
-        <div className="flex items-center gap-4 text-sm">
-          {isAutenticado ? (
-            <>
-              <span className="hidden sm:block">
-                Olá, {usuario?.nome?.split(" ")[0] || "Cliente"}
-              </span>
+      {/* DIREITA */}
+      <div className="flex items-center gap-4 text-sm">
+        {isAutenticado ? (
+          <>
+            <span className="hidden sm:block">
+              Olá, {usuario?.nome?.split(" ")[0]}
+            </span>
 
-              <button
-                onClick={() => {
-                  logout();
-                  navigate("/");
+            {usuario?.role === "SUPERUSER" && (
+              <select
+                value={empresaSelecionada || ""}
+                onChange={(e) => {
+                  const id = Number(e.target.value);
+
+                  setEmpresaSelecionada(id); // React (UI)
+                  setEmpresaSelecionadaGlobal(id); // Interceptor (API)
                 }}
-                className="bg-red-500 hover:bg-red-600 px-2 py-1 rounded text-xs"
+                className="bg-gray-800 text-white px-2 py-1 rounded text-sm"
               >
-                Sair
-              </button>
-            </>
-          ) : (
-            <Link to="/login" className="hover:underline">
-              Entrar
-            </Link>
-          )}
+                <option value="">Selecionar empresa</option>
+                {empresas.map((emp) => (
+                  <option key={emp.id} value={emp.id}>
+                    {emp.nome}
+                  </option>
+                ))}
+              </select>
+            )}
 
-          {/* Carrinho */}
-          <Link to="/carrinho" className="relative">
-            <img src="/shopping-cart.png" alt="Carrinho" className="w-6 h-6" />
-          </Link>
-        </div>
-      </header>
-    </>
+            <button
+              onClick={() => {
+                logout();
+                navigate("/");
+              }}
+              className="bg-red-500 px-2 py-1 rounded text-xs"
+            >
+              Sair
+            </button>
+          </>
+        ) : (
+          <Link to="/login">Entrar</Link>
+        )}
+
+        <Link to="/carrinho">
+          <img src="/shopping-cart.png" className="w-6 h-6" />
+        </Link>
+      </div>
+    </header>
   );
 }

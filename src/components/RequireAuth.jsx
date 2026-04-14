@@ -1,4 +1,4 @@
-import { Navigate, useLocation } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 
 export default function RequireAuth({
@@ -11,23 +11,37 @@ export default function RequireAuth({
 
   if (loading) return null;
 
+  // 🔒 Não logado
   if (!usuario) {
     return <Navigate to="/login" replace />;
   }
 
   const role = usuario.role;
 
-  if (roles && !roles.includes(role)) {
-    return <Navigate to="/" replace />;
+  // 🔥 PRIORIDADE 1 → roles explícitos
+  if (roles) {
+    if (!roles.includes(role)) {
+      return <Navigate to="/acesso-negado" replace />;
+    }
+    return children;
   }
 
-  if (admin && !["ADMIN", "SUPERUSER"].includes(role)) {
-    return <Navigate to="/" replace />;
+  // 🔥 PRIORIDADE 2 → admin
+  if (admin) {
+    if (!["ADMIN", "SUPERUSER"].includes(role)) {
+      return <Navigate to="/acesso-negado" replace />;
+    }
+    return children;
   }
 
-  if (caixa && !["CAIXA", "ADMIN", "SUPERUSER"].includes(role)) {
-    return <Navigate to="/" replace />;
+  // 🔥 PRIORIDADE 3 → caixa
+  if (caixa) {
+    if (!["CAIXA", "ADMIN", "SUPERUSER"].includes(role)) {
+      return <Navigate to="/acesso-negado" replace />;
+    }
+    return children;
   }
 
+  // 🔥 DEFAULT → apenas autenticado
   return children;
 }

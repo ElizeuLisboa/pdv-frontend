@@ -15,6 +15,9 @@ const Carrinho = () => {
   const [mostrarPix, setMostrarPix] = useState(false);
   const [pixData, setPixData] = useState(null);
   const [copiado, setCopiado] = useState(false);
+  const [pagamentoAtivo, setPagamentoAtivo] = useState(false);
+  const [statusPagamento, setStatusPagamento] = useState("PENDENTE");
+  const [modal, setModal] = useState(null);
 
   useEffect(() => {
     if (!pixData) return;
@@ -73,7 +76,6 @@ const Carrinho = () => {
         "/pedidos/site",
         {
           itens: itensFormatados,
-          // valorTotal: total,
         },
         {
           headers: {
@@ -93,6 +95,10 @@ const Carrinho = () => {
 
       localStorage.setItem("pedidoId", pedidoId);
 
+      setInterval(() => {
+        verificarStatusPedido();
+      }, 5000);
+
       setMostrarPagamento(true);
     } catch (err) {
       console.error("Erro ao finalizar:", err);
@@ -108,6 +114,7 @@ const Carrinho = () => {
   };
 
   const pagarComPix = async () => {
+    setPagamentoAtivo(true);
     try {
       const pedidoId = localStorage.getItem("pedidoId");
 
@@ -121,6 +128,48 @@ const Carrinho = () => {
     } catch (err) {
       console.error("Erro PIX:", err);
     }
+  };
+
+  const verificarPagamento = async () => {
+    try {
+      const pedidoId = localStorage.getItem("pedidoId");
+
+      if (!pedidoId) return;
+
+      const res = await api.get(`/pedidos/${pedidoId}`);
+
+      if (res.data.status === "PAGO") {
+        setStatusPagamento("PAGO");
+
+        setModal({ mensagem: "Pagamento confirmado!", tipo: "sucesso" });
+
+        setTimeout(() => {
+          setModal(null);
+          window.location.href = `/sucesso?external_reference=${pedidoId}&status=approved`;
+        }, 2000);
+        // toast.success("Pagamento confirmado!");
+
+        // 👉 vai para sucesso (igual cartão)
+        window.location.href = `/sucesso?external_reference=${pedidoId}&status=approved`;
+      } else {
+        toast.info("Pagamento ainda não identificado.");
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const ModalFeedback = ({ mensagem, tipo }) => {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center z-50">
+        <div
+          className={`px-6 py-4 rounded-xl shadow-xl text-white text-center text-lg
+        ${tipo === "sucesso" ? "bg-green-600" : "bg-red-500"}`}
+        >
+          {mensagem}
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -191,15 +240,24 @@ const Carrinho = () => {
                 {/* 💳 MERCADO PAGO */}
                 <button
                   onClick={finalizarCompra}
-                  className="bg-emerald-600 text-white py-2 rounded hover:bg-emerald-700"
+                  disabled={pagamentoAtivo}
+                  className={`${
+                    pagamentoAtivo ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
                 >
                   💳 Pagar com Cartão
                 </button>
 
                 {/* 🔥 PIX */}
+
                 <button
                   onClick={pagarComPix}
-                  className="bg-green-600 text-white px-4 py-2 rounded"
+                  disabled={pagamentoAtivo}
+                  className={`bg-green-600 text-white px-4 py-2 rounded ${
+                    pagamentoAtivo
+                      ? "opacity-50 cursor-not-allowed"
+                      : "hover:bg-green-700"
+                  }`}
                 >
                   💚 Pagar com PIX
                 </button>
@@ -207,10 +265,19 @@ const Carrinho = () => {
                 {/* 🧹 LIMPAR */}
                 <button
                   onClick={clearCart}
+                  disabled={pagamentoAtivo}
                   className="bg-red-500 text-white py-2 rounded hover:bg-red-600"
                 >
                   Esvaziar Carrinho
                 </button>
+                {pixData && (
+                  <button
+                    onClick={verificarPagamento}
+                    className="mt-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                  >
+                    ✅ Já paguei
+                  </button>
+                )}
               </div>
             </div>
           </div>
@@ -247,7 +314,7 @@ const Carrinho = () => {
             </div>
 
             {/* STATUS */}
-            <p className="mt-4 text-yellow-600 font-medium animate-pulse">
+            <p className="mt-4 text-yellow-600 font-semibold animate-pulse">
               ⏳ Aguardando pagamento...
             </p>
 
@@ -257,14 +324,27 @@ const Carrinho = () => {
             </div>
 
             {/* BOTÃO COPIAR */}
+
             <button
-              onClick={copiarPix}
-              className="mt-4 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition"
+              onClick={() => {
+                // navigator.clipboard.writeText(copiaECola);
+                navigator.clipboard.writeText(
+                  pixData.point_of_interaction.transaction_data.qr_code,
+                );
+                toast.info("Código PIX copiado!");
+              }}
+              className="bg-green-600 text-white px-4 py-2 rounded mt-2"
             >
-              {copiado ? "✅ Copiado!" : "📋 Copiar código PIX"}
+              📋 Copiar código PIX
             </button>
+
+            <p className="text-sm text-gray-600 mt-2">
+              Abra o app do seu banco, escolha pagar com PIX e escaneie o QR
+              Code ou cole o código copiado.
+            </p>
           </div>
         )}{" "}
+        {modal && <ModalFeedback mensagem={modal.mensagem} tipo={modal.tipo} />}
       </div>
     </div>
   );

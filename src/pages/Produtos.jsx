@@ -52,7 +52,8 @@ export default function Produtos() {
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-200 to-green-200 p-4">
+     {/* <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"> */}
       {produtos.map((produto) => (
         <CardProduto key={produto.id} produto={produto} />
       ))}

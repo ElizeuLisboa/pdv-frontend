@@ -1,5 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import { CartProvider } from "./contexts/CartContext";
 import { FiltroProvider } from "./contexts/FiltroContext";
@@ -38,137 +37,152 @@ import AcessoNegado from "./pages/AcessoNegado";
 import Sucesso from "./pages/Sucesso";
 import CadastroClienteSite from "./pages/CadastroClienteSite";
 import PedidoDetalhe from "./pages/PedidoDetalhe";
+import Empresas from "./pages/Empresas";
+import { EmpresaProvider } from "./contexts/EmpresaContext";
 
 export default function App() {
   return (
-    <AuthProvider>
-      <CartProvider>
-        <FiltroProvider>
-          <Router>
-            <ScrollToTop />
-            <RoleRedirector />
+    <EmpresaProvider>
+      <AuthProvider>
+        <BrowserRouter>
+          <CartProvider>
+            <FiltroProvider>
 
-            <Routes>
-              {/* 🔒 ÁREA PRINCIPAL (SITE) */}
-              <Route element={<AppLayout />}>
-                <Route path="/" element={<Home />} />
-                {/* <Route path="/produtos" element={<Produtos />} /> */}
-                <Route path="/produtos" element={<Home />} />
-                <Route path="/produtos/:id" element={<DetalhesProduto />} />
-                <Route path="/carrinho" element={<Carrinho />} />
-                <Route path="/Sucesso" element={<Sucesso />} />
-                <Route path="/pedido/:id" element={<PedidoDetalhe />} />
-                <Route path="/cadastro" element={<CadastroClienteSite />} />
+                <ScrollToTop />
+                <RoleRedirector />
 
-                <Route
-                  path="/pedidos/meus"
-                  element={
-                    <RequireAuth>
-                      <PedidosUsuario />
-                    </RequireAuth>
-                  }
-                />
+                <Routes>
+                  {/* 🔒 ÁREA PRINCIPAL (SITE) */}
+                  <Route element={<AppLayout />}>
+                    <Route path="/" element={<Home />} />
+                    {/* <Route path="/produtos" element={<Produtos />} /> */}
+                    <Route path="/produtos" element={<Home />} />
+                    <Route path="/produtos/:id" element={<DetalhesProduto />} />
+                    <Route path="/carrinho" element={<Carrinho />} />
+                    <Route path="/Sucesso" element={<Sucesso />} />
+                    <Route path="/pedido/:id" element={<PedidoDetalhe />} />
+                    <Route path="/cadastro" element={<CadastroClienteSite />} />
 
-                <Route
-                  path="/produtos/novo"
-                  element={
-                    <RequireAuth>
-                      <RequireRole roles={["ADMIN", "SUPERUSER"]}>
-                        <NovoProduto />
-                      </RequireRole>
-                    </RequireAuth>
-                  }
-                />
+                    <Route
+                      path="/pedidos/meus"
+                      element={
+                        <RequireAuth>
+                          <PedidosUsuario />
+                        </RequireAuth>
+                      }
+                    />
 
-                <Route
-                  path="/clientes"
-                  element={
-                    <RequireAuth>
-                      <RequireRole roles={["ADMIN", "SUPERUSER"]}>
-                        <Clientes />
-                      </RequireRole>
-                    </RequireAuth>
-                  }
-                />
+                    <Route
+                      path="/produtos/novo"
+                      element={
+                        <RequireAuth>
+                          <RequireRole roles={["ADMIN", "SUPERUSER"]}>
+                            <NovoProduto />
+                          </RequireRole>
+                        </RequireAuth>
+                      }
+                    />
 
-                <Route
-                  path="/clientes/novo"
-                  element={
-                    <RequireAuth>
-                      <RequireRole roles={["ADMIN", "SUPERUSER"]}>
-                        <NovoCliente />
-                      </RequireRole>
-                    </RequireAuth>
-                  }
-                />
+                    <Route
+                      path="/clientes"
+                      element={
+                        <RequireAuth>
+                          <RequireRole roles={["ADMIN", "SUPERUSER"]}>
+                            <Clientes />
+                          </RequireRole>
+                        </RequireAuth>
+                      }
+                    />
 
-                <Route
-                  path="/clientes/:id/editar"
-                  element={
-                    <RequireAuth>
-                      <RequireRole roles={["ADMIN", "SUPERUSER"]}>
-                        <EditarCliente />
-                      </RequireRole>
-                    </RequireAuth>
-                  }
-                />
+                    <Route
+                      path="/clientes/novo"
+                      element={
+                        <RequireAuth>
+                          <RequireRole roles={["ADMIN", "SUPERUSER", "CAIXA"]}>
+                            <Cadastro />
+                          </RequireRole>
+                        </RequireAuth>
+                      }
+                    />
 
-                <Route
-                  path="/transportadoras"
-                  element={
-                    <RequireAuth>
-                      <RequireRole roles={["ADMIN", "SUPERUSER"]}>
-                        <Transportadoras />
-                      </RequireRole>
-                    </RequireAuth>
-                  }
-                />
+                    <Route
+                      path="/clientes/:id/editar"
+                      element={
+                        <RequireAuth>
+                          <RequireRole roles={["ADMIN", "SUPERUSER"]}>
+                            <EditarCliente />
+                          </RequireRole>
+                        </RequireAuth>
+                      }
+                    />
 
-                <Route
-                  path="/dashboard"
-                  element={
-                    <RequireAuth roles={["ADMIN", "SUPERUSER"]}>
-                      <Dashboard />
-                    </RequireAuth>
-                  }
-                />
-              </Route>
+                    <Route
+                      path="/transportadoras"
+                      element={
+                        <RequireAuth>
+                          <RequireRole roles={["ADMIN", "SUPERUSER"]}>
+                            <Transportadoras />
+                          </RequireRole>
+                        </RequireAuth>
+                      }
+                    />
 
-              {/* 🔓 ROTAS PÚBLICAS */}
-              <Route path="/login" element={<Login />} />
-              <Route path="/cadastro" element={<Cadastro />} />
-              <Route path="/apresentacao" element={<Apresentacao />} />
-              <Route path="/acesso-negado" element={<AcessoNegado />} />
+                    <Route
+                      path="/dashboard"
+                      element={
+                        <RequireAuth roles={["ADMIN", "SUPERUSER"]}>
+                          <Dashboard />
+                        </RequireAuth>
+                      }
+                    />
+                  </Route>
 
-              {/* 🧾 PDV / CAIXA */}
-              <Route
-                path="/caixa"
-                element={
-                  <RequireAuth caixa>
-                    <CaixaLayout>
-                      <CaixaLojaComponent />
-                    </CaixaLayout>
-                  </RequireAuth>
-                }
-              />
+                  <Route
+                    path="/empresas"
+                    element={
+                      <RequireAuth roles={["SUPERUSER"]}>
+                        <Empresas />
+                      </RequireAuth>
+                    }
+                  />
 
-              <Route
-                path="/caixa-admin"
-                element={
-                  <RequireAuth admin>
-                    <CaixaLayout>
-                      <AdminPage />
-                    </CaixaLayout>
-                  </RequireAuth>
-                }
-              />
-            </Routes>
+                  {/* 🔓 ROTAS PÚBLICAS */}
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/cadastro" element={<Cadastro />} />
+                  <Route path="/apresentacao" element={<Apresentacao />} />
+                  <Route path="/acesso-negado" element={<AcessoNegado />} />
 
-            <ToastContainer />
-            <Footer />
-          </Router>
-        </FiltroProvider>
-      </CartProvider>
-    </AuthProvider>
+                  {/* 🧾 PDV / CAIXA */}
+                  <Route
+                    path="/caixa"
+                    element={
+                      <RequireAuth caixa>
+                        <CaixaLayout>
+                          <CaixaLojaComponent />
+                        </CaixaLayout>
+                      </RequireAuth>
+                    }
+                  />
+
+                  <Route
+                    path="/caixa-admin"
+                    element={
+                      <RequireAuth admin>
+                        <CaixaLayout>
+                          <AdminPage />
+                        </CaixaLayout>
+                      </RequireAuth>
+                    }
+                  />
+                </Routes>
+
+                <ToastContainer />
+                <Footer />
+
+            </FiltroProvider>
+          </CartProvider>
+        </BrowserRouter>
+      </AuthProvider>
+    </EmpresaProvider>
   );
 }

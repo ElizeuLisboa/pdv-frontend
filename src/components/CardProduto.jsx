@@ -32,17 +32,9 @@ export default function CardProduto({ produto }) {
         className="w-full h-40 object-cover rounded-lg"
       />
 
-      {/* <img
-        src={
-          produto.image.startsWith("http")
-            ? produto.image
-            : `${API_URL}${produto.image}`
-        }
-        alt={produto.title}
-      /> */}
 
       <h3 className="text-lg font-bold">{title}</h3>
-      <p className="text-amber-600 mb-2">{formatarPreco(price)}</p>
+      <p className="text-gray-600 mb-2">{formatarPreco(price)}</p>
       <div className="mt-auto flex gap-2">
         <button
           onClick={() => navigate(`/produtos/${produto.id}`)}
