@@ -1,12 +1,3 @@
-// let empresaSelecionada = null;
-
-// export const setEmpresaSelecionadaGlobal = (id) => {
-//   empresaSelecionada = id;
-// };
-
-// export const getEmpresaSelecionada = () => {
-//   return empresaSelecionada;
-// };
 let empresaSelecionada = null;
 
 export const setEmpresaSelecionadaGlobal = (id) => {

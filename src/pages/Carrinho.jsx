@@ -147,7 +147,6 @@ const Carrinho = () => {
           setModal(null);
           window.location.href = `/sucesso?external_reference=${pedidoId}&status=approved`;
         }, 2000);
-        // toast.success("Pagamento confirmado!");
 
         // 👉 vai para sucesso (igual cartão)
         window.location.href = `/sucesso?external_reference=${pedidoId}&status=approved`;

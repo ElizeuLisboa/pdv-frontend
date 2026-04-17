@@ -98,19 +98,8 @@ export default function PedidosUsuario() {
                 {pedido.status}
               </span>
 
-              {/* <div
-                className={`mt-3 md:mt-0 text-sm font-semibold px-4 py-2 rounded-full ${
-                  pedido.status === "ENTREGUE"
-                  ? "bg-green-100 text-green-700"
-                  : "bg-yellow-100 text-yellow-800"
-                }`}
-                >
-                {pedido.status}
-              </div> */}
             </div>
-
-            {/* <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-6"> */}
-            
+           
             <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
 
               {pedido.itens?.map((item) => (
