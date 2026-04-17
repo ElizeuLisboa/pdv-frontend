@@ -15,7 +15,7 @@ export default function Home() {
     if (!empresaSelecionada) {
       console.log("⚠️ Setando empresa padrão");
       localStorage.setItem("empresaSelecionada", 1);
-      window.location.reload(); // simples e resolve
+      // window.loction.reload(); // simples e resolve
     }
   }, []);
 
