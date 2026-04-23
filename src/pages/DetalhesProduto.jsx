@@ -77,25 +77,6 @@ const DetalhesProduto = () => {
     navigate("/produtos");
   };
 
-  // const handleComprar = async () => {
-  //   if (loading) return;
-  //   setLoading(true);
-
-  //   try {
-  //     adicionarProduto({ ...produto, quantidade });
-
-  //     toast.success(
-  //       `${quantidade}x ${produto.nome} adicionado(s) ao carrinho!`,
-  //     );
-
-  //     setTimeout(() => navigate("/produtos"), 1000);
-  //   } catch (err) {
-  //     console.error(err);
-  //     toast.error("Erro ao adicionar produto!");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
 
   const handleComprar = async () => {
     if (loading) return;

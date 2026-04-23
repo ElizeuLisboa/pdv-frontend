@@ -66,9 +66,26 @@ const Carrinho = () => {
 
       const itensFormatados = cartItems.map((item) => ({
         produtoId: item.id ?? item.produtoId,
-        quantidade: item.quantidade ?? item.quantity ?? 1,
-        preco: item.price,
+
+        quantidade: Number(item.quantidade ?? item.quantity ?? 1),
+
+        preco: Number(item.price || 0),
+
+        // 🔥 unidade escolhida
+        unidade: item.unidade || "UN",
+
+        // 🔥 fator real da unidade
+        fator: Number(item.fator || 1),
+
+        // 🔥 opcional
+        unidadeId: item.unidadeId || null,
       }));
+
+      // const itensFormatados = cartItems.map((item) => ({
+      //   produtoId: item.id ?? item.produtoId,
+      //   quantidade: item.quantidade ?? item.quantity ?? 1,
+      //   preco: item.price,
+      // }));
 
       const token = localStorage.getItem("token");
 
