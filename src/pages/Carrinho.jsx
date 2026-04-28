@@ -81,12 +81,6 @@ const Carrinho = () => {
         unidadeId: item.unidadeId || null,
       }));
 
-      // const itensFormatados = cartItems.map((item) => ({
-      //   produtoId: item.id ?? item.produtoId,
-      //   quantidade: item.quantidade ?? item.quantity ?? 1,
-      //   preco: item.price,
-      // }));
-
       const token = localStorage.getItem("token");
 
       const pedidoRes = await api.post(
@@ -112,9 +106,9 @@ const Carrinho = () => {
 
       localStorage.setItem("pedidoId", pedidoId);
 
-      setInterval(() => {
-        verificarStatusPedido();
-      }, 5000);
+      setTimeout(() => {
+        fetchPedido();
+      }, 2000);
 
       setMostrarPagamento(true);
     } catch (err) {
@@ -257,8 +251,8 @@ const Carrinho = () => {
                 <button
                   onClick={finalizarCompra}
                   disabled={pagamentoAtivo}
-                  className={`${
-                    pagamentoAtivo ? "opacity-50 cursor-not-allowed" : ""
+                  className={`bg-blue-600 text-white px-4 py-2 rounded ${
+                    pagamentoAtivo ? "opacity-50 cursor-not-allowed" : "hover:bg-blue-700"
                   }`}
                 >
                   💳 Pagar com Cartão

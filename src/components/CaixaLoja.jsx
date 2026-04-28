@@ -109,54 +109,6 @@ export default function CaixaLojaComponent() {
     }
   };
 
-  // const handleConfirmarPagamento = async (payload) => {
-  //   try {
-  //     console.log("onConfirm recebido:", payload);
-
-  //     // 🔥 PIX já tratado
-
-  //     if (payload === "PAGO") {
-  //       console.log("⚠️ PIX já foi finalizado no backend");
-  //       setMostrarModalPagamento(false);
-  //       setCarrinho([]);
-  //       setCliente(null);
-  //       return;
-  //     }
-  //     // if (payload === "PAGO") {
-  //     //   setMostrarModalPagamento(false);
-  //     //   return;
-  //     // }
-
-  //     const itensFormatados = carrinho.map((i) => ({
-  //       produtoId: i.id,
-  //       quantidade: i.quantidade,
-  //       valor: i.price,
-  //     }));
-
-  //     const response = await api.post(
-  //       "/caixa/finalizar",
-  //       {
-  //         metodoPagamento: payload.metodoPagamento,
-  //         parcelas: payload.parcelas,
-  //         clienteId: cliente?.id || null,
-  //         itens: itensFormatados, // 🔥 AGORA SIM
-  //         valorTotal: total,
-  //       },
-  //       {
-  //         headers: {
-  //           Authorization: `Bearer ${localStorage.getItem("token")}`,
-  //         },
-  //       },
-  //     );
-
-  //     setPedidoFinalizado(response.data);
-  //     setCarrinho([]);
-  //     setCliente(null);
-  //     setMostrarModalPagamento(false);
-  //   } catch (err) {
-  //     console.error("Erro ao finalizar pagamento:", err.response?.data || err);
-  //   }
-  // };
 
   const buscarProduto = async (termo) => {
     if (!termo?.trim()) return;

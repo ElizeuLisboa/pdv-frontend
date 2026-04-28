@@ -182,15 +182,7 @@ export default function CupomTeste({ pedido, onClose, onFinalizar }) {
             </button>
           </div>
 
-          {/* <div style={{ marginTop: 20, textAlign: "center" }}>
-            <button onClick={imprimirApenasCupom}>Imprimir Cupom</button>
-            <button
-              onClick={onFinalizar}
-              className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-            >
-              Finalizar Venda
-            </button>
-          </div> */}
+
         </div>
       </div>
     </div>

@@ -137,6 +137,7 @@ export default function MercadoPagoCardPayment({ valor, onClose }) {
         installments: Number(form.installments),
         paymentMethodId, // 👈 ESSENCIAL
         payer: {
+          email: usuario.email,
           identification: {
             type: "CPF",
             number: cpf,

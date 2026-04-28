@@ -120,17 +120,32 @@ export default function Sucesso() {
             <h3 className="text-lg font-semibold mb-2">Itens do pedido</h3>
 
             <ul className="divide-y">
-              {pedido.itens.map((item) => (
-                <li key={item.id} className="py-2 flex justify-between">
-                  <span>
-                    {item.produto?.title || "Produto"}
-                    {" – "}
-                    {item.quantidade}x
-                  </span>
+              {pedido.itens.map((item) => {
+                const valorUnitario = Number(item.valor ?? 0);
+                const quantidade = Number(item.quantidade ?? 0);
+                const valorTotalItem = valorUnitario * quantidade;
 
-                  <span>R$ {(item.valor ?? 0).toFixed(2)}</span>
-                </li>
-              ))}
+                return (
+                  <li
+                    key={item.id}
+                    className="py-2 flex justify-between items-start"
+                  >
+                    <div>
+                      <span className="font-medium">
+                        {item.produto?.title || "Produto"}
+                      </span>
+
+                      <div className="text-sm text-gray-600">
+                        {quantidade}x × R$ {valorUnitario.toFixed(2)}
+                      </div>
+                    </div>
+
+                    <span className="font-semibold">
+                      R$ {valorTotalItem.toFixed(2)}
+                    </span>
+                  </li>
+                );
+              })}
             </ul>
           </>
         )}
@@ -138,6 +153,21 @@ export default function Sucesso() {
 
       {/* AÇÕES */}
       <div className="mt-6 flex gap-3 justify-center">
+        {/* <button
+          onClick={() => window.open(pedido.danfeUrl, "_blank")}
+          className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+        >
+          🧾 Baixar DANFE
+        </button> */}
+        {pedido.danfeUrl && (
+          <button
+            onClick={() => window.open(pedido.danfeUrl, "_blank")}
+            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+          >
+            🧾 Baixar DANFE
+          </button>
+        )}
+
         <button
           onClick={() => navigate("/pedidos/meus")}
           className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
@@ -145,15 +175,11 @@ export default function Sucesso() {
           Ver meus pedidos
         </button>
 
-        <button onClick={() => navigate(`/pedido/${pedidoId}`)}>
+        <button onClick={() => navigate(`/pedido/${pedidoId}`)}
+          className="bg-slate-600 text-white px-4 py-2 rounded hover:bg-gray-800">
           Ver detalhes do pedido
         </button>
       </div>
     </div>
   );
 }
-
-/*
-id: 1326745320
-external_reference: "60"
-status: "pending" */
